@@ -46,6 +46,10 @@ def scrapeTable(config_file_path):
     tables_xpath=config["tables_xpath"]
     writefile_path=os.path.join(root,config["writefile_path"])
 
+    # デフォルト値を設定
+    if header_xpath == "" : header_xpath="./thead//th | ./tbody/tr[1][not(./td)]/th"
+    if tables_xpath == "" : tables_xpath="//table"
+
     # 指定ディレクトリからHTMLファイルを取得する
     files = os.listdir(html_files)
     for file in [_ for _ in files if os.path.splitext(_)[1]==".html"]:
@@ -73,4 +77,4 @@ def scrapeTable(config_file_path):
     
 if __name__ == '__main__':
 
-    scrapeTable("projects/support_devices/mvno/dmm/scrape.config")
+    scrapeTable("projects/support_devices/mvno/nifmo/scrape.config")
