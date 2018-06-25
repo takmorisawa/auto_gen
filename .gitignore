@@ -1,0 +1,8 @@
+*.html
+.DS_Store
+*.ipynb
+*.csv
+__pycache__/
+*.zip
+*.png
+doc/

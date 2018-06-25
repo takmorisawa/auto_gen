@@ -1,0 +1,31 @@
+{
+    "標準": [
+        "標準",
+        "標準SIM"
+    ],
+    "micro": [
+        "マイクロ",
+        "microSIM（nano-SIMアダプター同梱）",
+        "microSIM",
+        "マイクロSIM",
+        "MicroSIM",
+        "micro",
+        "マルチSIM（micro）"
+    ],
+    "nano": [
+        "ナノ",
+        "nanoSIM",
+        "nano",
+        "マルチSIM(nano)",
+        "マルチSIM（nano）",
+        "nanoSIM（専用）"
+    ],
+    "au VoLTE(micro)": [
+        "au VoLTE(micro)",
+        "VoLTE SIM （micro）"
+    ],
+    "au VoLTE（nano）": [
+        "VoLTE SIM （nano）",
+        "au VoLTE(nano)"
+    ]
+}

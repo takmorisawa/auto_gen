@@ -1,0 +1,54 @@
+{
+    "WILLCOM": [
+
+    ],
+    "docomo": [
+        "docomoブランド端末",
+        "docomo版",
+        "docomo",
+        "NTTドコモ",
+        "ドコモ販売"
+    ],
+    "au": [
+        "au版",
+        "auブランド端末",
+        "au",
+        "au取扱端末",
+        "au(SIMロック解除済み)",   
+        "au販売"
+    ],
+    "ワイモバイル": [
+    ],
+    "SIMフリー": [
+        "simフリー版",
+        "SIMフリー",
+        "SIMフリー端末",
+        "SIMフリー版",
+        "Appleストア販売",
+        "SIMロックフリー版"
+    ],
+    "SoftBank": [
+        "Softbank(SIMロック解除済み)",
+        "SoftBankブランド端末",
+        "SoftBank版",
+        "SoftBank",
+        "SoftBank販売"
+    ],
+    "": [
+    ],
+    "BIGLOBE": [
+        "BIGLOBE販売"
+    ],
+    "mineo": [
+        "mineo端末"
+    ],
+    "mioサプライ": [
+        "mioサプライ端末"
+    ],
+    "Y!mobile": [
+        "Y!mobileブランド端末"
+    ],
+    "UQ mobile": [
+        "UQ mobile端末"
+    ]
+}
