@@ -4,11 +4,11 @@ import difflib
 import saveFigure
 import re
 
-carrier_dict={}
-maker_dict={}
-tether_dict={}
-unlock_dict={}
-sim_dict={}
+dic_carrier={}
+dic_maker={}
+dic_tether={}
+dic_unlock={}
+dic_sim={}
 
 def get_first(val,dic):
     return next(filter(lambda x:val in x[1], dic.items()), ("",""))[0]
@@ -18,7 +18,7 @@ def get_set(df_list,column):
  
     item_list=[]
     for df in [df for df in df_list if column in df.columns]:
-        item_list.extend([t if isinstance(t,str) else "_not string" for t in df[column]])
+        item_list.extend([t for t in df[column]])
     item_set=set(item_list)
     
     return item_set
@@ -40,13 +40,13 @@ def get_dict(df_master,df_list,column):
 
     return dic
 
-def get_new(dic,l):
+def get_new(dic,item_list):
     
     dic_list=[]
     for vals in dic.values():
         dic_list.extend(vals)
     
-    new_list=[item for item in l if not(item in dic_list)]
+    new_list=[item for item in item_list if not(item in dic_list)]
     print(new_list)
         
 
@@ -110,7 +110,7 @@ def match(df_master,df_target,file_path,error_path):
     for idx,row in df_target.iterrows():
         
         # 辞書からキャリア名称を取得
-        carrier=next(filter(lambda x:row["carrier"] in x[1], carrier_dict.items()), ("",""))[0]
+        carrier=next(filter(lambda x:row["carrier"] in x[1], dic_carrier.items()), ("",""))[0]
         # 辞書からメーカー名を取得
         maker=next(filter(lambda x:row["maker"] in x[1], maker_dict.items()), ("",""))[0]        
         
@@ -210,6 +210,7 @@ def joinMVNO(df_list,name_list,file_path):
     join_list=[]
     for df,mvno in zip(df_list,name_list):
         
+        df=df.copy()
         df["mvno"]=mvno
         
         if not("model" in df.columns):
@@ -221,12 +222,12 @@ def joinMVNO(df_list,name_list,file_path):
             row["name"]=m.groups()[0].strip() if isModel else row["name"]
             row["model"]=m.groups()[1].strip() if isModel else row["model"]
         
-        df["tethering"]=[get_first(x,tether_dict) for x in df["tethering"]] if "tethering" in df.columns else ""
-        df["carrier"]=[get_first(x,carrier_dict) for x in df["carrier"]] if "carrier" in df.columns else ""
-        df["unlock"]=[get_first(x,unlock_dict) for x in df["unlock"]] if "unlock" in df.columns else ""
-        df["sim"]=[get_first(x,sim_dict) for x in df["sim"]] if "sim" in df.columns else ""
+        df["tethering"]=[get_first(x,dic_tether) for x in df["tethering"]] if "tethering" in df.columns else ""
+        df["carrier"]=[get_first(x,dic_carrier) for x in df["carrier"]] if "carrier" in df.columns else ""
+        df["unlock"]=[get_first(x,dic_unlock) for x in df["unlock"]] if "unlock" in df.columns else ""
+        df["sim"]=[get_first(x,dic_sim) for x in df["sim"]] if "sim" in df.columns else ""
         if "sim1" in df.columns and "sim2" in df.columns:
-            df["sim"]=["/".join([get_first(row["sim1"],sim_dict),get_first(row["sim2"],sim_dict)]) if row["sim2"]!="" else get_first(row["sim1"],sim_dict) for idx,row in df.iterrows()]
+            df["sim"]=["/".join([get_first(row["sim1"],dic_sim),get_first(row["sim2"],dic_sim)]) if row["sim2"]!="" else get_first(row["sim1"],dic_sim) for idx,row in df.iterrows()]
         
         join_list.append(df.loc[:,["mvno","name","model","sim","carrier","tethering","unlock"]])
 

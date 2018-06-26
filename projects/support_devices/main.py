@@ -80,16 +80,17 @@ if __name__=="__main__":
     
     
     # 複合処理
+  
     with open("dic/dic_carrier.json","r",encoding="utf-8") as f:
-        match.carrier_dict=json.load(f)   
+        match.dic_carrier=json.load(f)   
     with open("dic/dic_maker.json","r",encoding="utf-8") as f:
-        match.maker_dict=json.load(f)    
+        match.dic_maker=json.load(f)    
     with open("dic/dic_tethering.json","r",encoding="utf-8") as f:
-        match.tether_dict=json.load(f)
+        match.dic_tether=json.load(f)
     with open("dic/dic_unlock.json","r",encoding="utf-8") as f:
-        match.unlock_dict=json.load(f)
+        match.dic_unlock=json.load(f)
     with open("dic/dic_sim.json","r",encoding="utf-8") as f:
-        match.sim_dict=json.load(f)
+        match.dic_sim=json.load(f)
         
     df_master=pd.read_csv("kakaku/csv/devices_kakaku-scraped-edited.csv",index_col=0) 
     df_list=[pd.read_csv(file_path,index_col=0).fillna("") for file_path in 
@@ -111,9 +112,9 @@ if __name__=="__main__":
             ]]
     name_list=["mineo_d","mineo_a","uq","ymobile","rakuten","ocn","IIJmio_d","IIJmio_a","linemobile","biglobe_d","biglobe_a","qt_d","qt_a","qt_s"]
 
-    for df,name in zip(df_list,name_list):
-        print(name)
-        print(df.columns)
+    #for df,name in zip(df_list,name_list):
+    #    print(name)
+    #    print(df.columns)
  
     #print(df_list[0].head())
        
@@ -124,20 +125,14 @@ if __name__=="__main__":
     match.joinMVNO(df_list,name_list,"csv/mvno_join.csv")
 
     # 新規項目を確認
-    print("\ncarirer初登場：")
-    item_set=match.get_set(df_list,"carrier")
-    match.get_new(match.carrier_dict,item_set)
-    print(item_set)
-    print("\nmaker初登場：")
-    item_set=match.get_set(df_list,"maker")
-    match.get_new(match.maker_dict,item_set)
-    print("\ntethering初登場：")
-    item_set=match.get_set(df_list,"tethering")
-    match.get_new(match.tether_dict,item_set)
-    print("\sim初登場")
-    item_set=match.get_set(df_list,"sim")
-    match.get_new(match.sim_dict,item_set)
+    for column, dic in zip(
+            ["carrier","maker","tethering","sim"],
+            [match.dic_carrier,match.dic_maker,match.dic_tether,match.dic_sim]):
+        print("\n{0}初登場：".format(column))
+        item_set=match.get_set(df_list,column)
+        match.get_new(dic,item_set)
+
     
     # 辞書作成
-    dic=match.get_dict(df_list[0],df_list,"sim1")
+    #dic=match.get_dict(df_list[0],df_list,"sim1")
     
