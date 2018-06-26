@@ -9,6 +9,7 @@ dic_maker={}
 dic_tether={}
 dic_unlock={}
 dic_sim={}
+dic_type={}
 
 def get_first(val,dic):
     return next(filter(lambda x:val in x[1], dic.items()), ("",""))[0]

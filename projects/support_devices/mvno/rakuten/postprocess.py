@@ -12,7 +12,7 @@ def postprocess():
         
     carrier_list=["SIMフリー","docomo","au","SoftBank","ワイモバイル","WILLCOM","イー・モバイル","ディズニー・モバイル"]
     
-    for idx,col in df[df.device_type=="スマートフォン"].iterrows():
+    for idx,col in df.iterrows():
 
         col["ord_name"]=col["name"]
     

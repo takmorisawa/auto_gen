@@ -10,7 +10,7 @@ def postprocess():
     df=pd.read_csv(os.path.join(current_dir,"csv/devices_ymobile-scraped.csv"),index_col=0)
     df_edited=pd.DataFrame()
 
-    for idx,col in df[df.device_type=="select_tab_contents select_sp_contents"].iterrows():
+    for idx,col in df.iterrows():
     
         col["org_name"]=col["name"]
 

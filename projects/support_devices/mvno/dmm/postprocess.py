@@ -11,10 +11,8 @@ def postprocess():
     df=df.rename(columns={'メーカー':"maker", '種別':"device_type", '端末':"name", 'LTE':"data", 'SIMカードサイズ':"sim", 
                   'テザリング':"tethering", 'アンテナピクト表示':"pict", '音声通話':"call",'動作確認時のバージョン':"os", '備考':"note"})
     df=df.fillna("")
-    
     df_edited=pd.DataFrame()
 
-    print(df.columns)
 
     for idx,row in df.iterrows():
         

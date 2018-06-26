@@ -33,11 +33,9 @@ def postprocess():
             key=m.groups()[1].strip()
             col["maker"]=df_mk[[mkrow["plan"]==col["plan"] and mkrow["key"]==key for mkidx,mkrow in df_mk.iterrows()]].iat[0,2].strip()
         
-        # スマホのみ
-        if col["device_type"]=="smp" or col["device_type"]=="tab_item-0":
-            if col["plan"]=="Sタイプ": dfS_edited=dfS_edited.append(col,ignore_index=True)
-            if col["plan"]=="Dタイプ": dfD_edited=dfD_edited.append(col,ignore_index=True)
-            if col["plan"]=="Aタイプ": dfA_edited=dfA_edited.append(col,ignore_index=True)
+        if col["plan"]=="Sタイプ": dfS_edited=dfS_edited.append(col,ignore_index=True)
+        if col["plan"]=="Dタイプ": dfD_edited=dfD_edited.append(col,ignore_index=True)
+        if col["plan"]=="Aタイプ": dfA_edited=dfA_edited.append(col,ignore_index=True)
     
     dfD_edited.index.name="id"
     dfD_edited.to_csv(os.path.join(root,"csv/devices_qtD-scraped-edited.csv"))

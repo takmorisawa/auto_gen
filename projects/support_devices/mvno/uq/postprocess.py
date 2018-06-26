@@ -11,7 +11,7 @@ def postprocess():
     df_edited=pd.DataFrame()
     print(df.columns)
 
-    for idx,col in df[df.device_type=="スマホ"].iterrows():
+    for idx,col in df.iterrows():
     
         col["org_name"]=col["name"]
         

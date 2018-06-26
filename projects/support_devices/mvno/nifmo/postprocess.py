@@ -14,7 +14,7 @@ def postprocess():
 
     print(df.columns)
 
-    for idx,col in df[df.device_type=="スマートフォン"].iterrows():
+    for idx,col in df.iterrows():
         
         tmp_name=col["name"].replace("\n","").replace("™","")
         

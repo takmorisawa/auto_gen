@@ -80,17 +80,6 @@ if __name__=="__main__":
     
     
     # 複合処理
-  
-    with open("dic/dic_carrier.json","r",encoding="utf-8") as f:
-        match.dic_carrier=json.load(f)   
-    with open("dic/dic_maker.json","r",encoding="utf-8") as f:
-        match.dic_maker=json.load(f)    
-    with open("dic/dic_tethering.json","r",encoding="utf-8") as f:
-        match.dic_tether=json.load(f)
-    with open("dic/dic_unlock.json","r",encoding="utf-8") as f:
-        match.dic_unlock=json.load(f)
-    with open("dic/dic_sim.json","r",encoding="utf-8") as f:
-        match.dic_sim=json.load(f)
         
     df_master=pd.read_csv("kakaku/csv/devices_kakaku-scraped-edited.csv",index_col=0) 
     df_list=[pd.read_csv(file_path,index_col=0).fillna("") for file_path in 
@@ -108,9 +97,42 @@ if __name__=="__main__":
                 "mvno/biglobe/csv/devices_biglobeA-scraped-edited.csv",
                 "mvno/qt/csv/devices_qtD-scraped-edited.csv",
                 "mvno/qt/csv/devices_qtA-scraped-edited.csv",
-                "mvno/qt/csv/devices_qtS-scraped-edited.csv"
+                "mvno/qt/csv/devices_qtS-scraped-edited.csv",
+                "mvno/dmm/csv/devices_dmm-scraped-edited.csv",
+                "mvno/nifmo/csv/devices_nifmo-scraped-edited.csv"
             ]]
-    name_list=["mineo_d","mineo_a","uq","ymobile","rakuten","ocn","IIJmio_d","IIJmio_a","linemobile","biglobe_d","biglobe_a","qt_d","qt_a","qt_s"]
+    name_list=["mineo_d","mineo_a","uq","ymobile","rakuten","ocn","IIJmio_d","IIJmio_a","linemobile",
+               "biglobe_d","biglobe_a","qt_d","qt_a","qt_s","dmm","nifmo"]
+
+    # 辞書を入力
+    with open("dic/dic_carrier.json","r",encoding="utf-8") as f:
+        match.dic_carrier=json.load(f)   
+    with open("dic/dic_maker.json","r",encoding="utf-8") as f:
+        match.dic_maker=json.load(f)    
+    with open("dic/dic_tethering.json","r",encoding="utf-8") as f:
+        match.dic_tether=json.load(f)
+    with open("dic/dic_unlock.json","r",encoding="utf-8") as f:
+        match.dic_unlock=json.load(f)
+    with open("dic/dic_sim.json","r",encoding="utf-8") as f:
+        match.dic_sim=json.load(f)
+    with open("dic/dic_type.json","r",encoding="utf-8") as f:
+        match.dic_type=json.load(f)
+        
+    # 新規項目を確認
+    for column, dic in zip(
+            ["carrier","maker","tethering","sim","unlock","device_type"],
+            [match.dic_carrier,match.dic_maker,match.dic_tether,match.dic_sim,match.dic_unlock,match.dic_type]):
+        print("\n{0}初登場：".format(column))
+        item_set=match.get_set(df_list[0:3],column)
+        match.get_new(dic,item_set)
+        
+    # 表記揺れ解消
+    for df in df_list:
+        df["device_type"]=[match.get_first(t,match.dic_type) for t in df["device_type"]]
+        
+    # 保存
+    for df,name in zip(df_list,name_list):
+        df.to_csv("csv/mvno/{0}.csv".format(name))
 
     #for df,name in zip(df_list,name_list):
     #    print(name)
@@ -124,15 +146,6 @@ if __name__=="__main__":
     # 連結
     match.joinMVNO(df_list,name_list,"csv/mvno_join.csv")
 
-    # 新規項目を確認
-    for column, dic in zip(
-            ["carrier","maker","tethering","sim","unlock"],
-            [match.dic_carrier,match.dic_maker,match.dic_tether,match.dic_sim,match.dic_unlock]):
-        print("\n{0}初登場：".format(column))
-        item_set=match.get_set(df_list,column)
-        match.get_new(dic,item_set)
-
-    
     # 辞書作成
-    #dic=match.get_dict(df_list[0],df_list,"sim1")
+    #dic=match.get_dict(df_list[4],df_list,"device_type")
     

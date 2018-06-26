@@ -13,7 +13,7 @@ def postprocess():
     
 
     # 対象をスマートフォンに限る
-    for idx,col in df[[x=="スマートフォン" or x=="BIGLOBE販売スマートフォン" for x in df["device_type"]]].iterrows():
+    for idx,col in df.iterrows():
 
         col["org_name"]=col["name"]
         

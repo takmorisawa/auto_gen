@@ -20,7 +20,7 @@ def postprocess():
             "md38TabCntWrap FnDeviceTablet FnTabCont":"タブレット"
             }
     
-    for idx,col in df[df.device_type=="md38TabCntWrap FnDevicePhone FnTabCont FnTabContactive"].iterrows():
+    for idx,col in df.iterrows():
 
         col["ord_name"]=col["name"]
         col["data"]=dic_mark[col["data"]]
