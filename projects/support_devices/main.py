@@ -126,8 +126,8 @@ if __name__=="__main__":
 
     # 新規項目を確認
     for column, dic in zip(
-            ["carrier","maker","tethering","sim"],
-            [match.dic_carrier,match.dic_maker,match.dic_tether,match.dic_sim]):
+            ["carrier","maker","tethering","sim","unlock"],
+            [match.dic_carrier,match.dic_maker,match.dic_tether,match.dic_sim,match.dic_unlock]):
         print("\n{0}初登場：".format(column))
         item_set=match.get_set(df_list,column)
         match.get_new(dic,item_set)
