@@ -9,7 +9,7 @@ def postprocess():
     
     df=pd.read_csv(os.path.join(current_dir,"csv/devices_linemobile-scraped.csv"),index_col=0)
     df_edited=pd.DataFrame()
-    print(df.columns)
+    #print(df.columns)
     
     dic_mark={
             "md38SAccoIcoCircle":"◯",
@@ -40,6 +40,10 @@ def postprocess():
         m=re.match("(.+)[\(（](.+)[\)）]",col["name"])
         col["name"]=m.groups()[0].strip() if m else col["name"]
         col["model"]=m.groups()[1].strip() if m else ""
+        
+        m=re.match("(.+)/(.+)",col["sim1"])
+        col["sim1"]=m.groups()[0].strip() if m else col["sim1"]
+        col["sim2"]=m.groups()[1].strip() if m else ""
         
         # iPhone, iPad model
         m=re.match("(i.+) (A\d{4})",col["name"])
