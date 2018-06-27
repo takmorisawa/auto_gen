@@ -132,7 +132,7 @@ if __name__=="__main__":
         
     # 保存
     for df,name in zip(df_list,name_list):
-        df.to_csv("csv/mvno/{0}.csv".format(name))
+        df.to_csv("csv/mvno/devices_{0}.csv".format(name))
 
     #for df,name in zip(df_list,name_list):
     #    print(name)
