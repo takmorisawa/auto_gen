@@ -223,14 +223,22 @@ def joinMVNO(df_list,name_list,file_path):
             row["name"]=m.groups()[0].strip() if isModel else row["name"]
             row["model"]=m.groups()[1].strip() if isModel else row["model"]
         
-        df["tethering"]=[get_first(x,dic_tether) for x in df["tethering"]] if "tethering" in df.columns else ""
-        df["carrier"]=[get_first(x,dic_carrier) for x in df["carrier"]] if "carrier" in df.columns else ""
-        df["unlock"]=[get_first(x,dic_unlock) for x in df["unlock"]] if "unlock" in df.columns else ""
-        df["sim"]=[get_first(x,dic_sim) for x in df["sim"]] if "sim" in df.columns else ""
+        for column,dic in zip(
+                ["device_type","tethering","carrier","unlock","sim"],
+                [dic_type,dic_tether,dic_carrier,dic_unlock,dic_sim]):
+            df[column]=[get_first(x,dic) for x in df[column]] if column in df.columns else ""
+            
+        #df["type"]=[get_first(x,dic_type) for x in df["device_type"]] if "device_type" in df.columns else ""
+        #df["tethering"]=[get_first(x,dic_tether) for x in df["tethering"]] if "tethering" in df.columns else ""
+        #df["carrier"]=[get_first(x,dic_carrier) for x in df["carrier"]] if "carrier" in df.columns else ""
+        #df["unlock"]=[get_first(x,dic_unlock) for x in df["unlock"]] if "unlock" in df.columns else ""
+        #df["sim"]=[get_first(x,dic_sim) for x in df["sim"]] if "sim" in df.columns else ""
+        
         if "sim1" in df.columns and "sim2" in df.columns:
             df["sim"]=["/".join([get_first(row["sim1"],dic_sim),get_first(row["sim2"],dic_sim)]) if row["sim2"]!="" else get_first(row["sim1"],dic_sim) for idx,row in df.iterrows()]
         
-        join_list.append(df.loc[:,["mvno","name","model","sim","carrier","tethering","unlock"]])
+        df=df.rename(columns={"device_type":"type"})
+        join_list.append(df.loc[:,["mvno","name","model","type","sim","carrier","tethering","unlock"]])
 
     df_join=pd.concat(join_list) # 結合 
     df_join.to_csv(file_path,index=False) # 書き出し

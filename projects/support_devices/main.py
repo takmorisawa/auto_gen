@@ -67,6 +67,8 @@ def execute_unit(tid,pipeline,results):
 
 if __name__=="__main__":
 
+    root=os.path.dirname(os.path.abspath(__file__))
+    
     # 単体処理をマルチスレッドで実行
     results={}
     t_list=[]
@@ -132,7 +134,7 @@ if __name__=="__main__":
         
     # 保存
     for df,name in zip(df_list,name_list):
-        df.to_csv("csv/mvno/devices_{0}.csv".format(name))
+        df.to_csv(os.path.join(root,"csv/mvno/devices_{0}.csv").format(name))
 
     #for df,name in zip(df_list,name_list):
     #    print(name)
