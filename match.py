@@ -113,7 +113,7 @@ def match(df_master,df_target,file_path,error_path):
         # 辞書からキャリア名称を取得
         carrier=next(filter(lambda x:row["carrier"] in x[1], dic_carrier.items()), ("",""))[0]
         # 辞書からメーカー名を取得
-        maker=next(filter(lambda x:row["maker"] in x[1], maker_dict.items()), ("",""))[0]        
+        maker=next(filter(lambda x:row["maker"] in x[1], dic_maker.items()), ("",""))[0]        
         
         # キャリアとメーカーでフィルタ（空欄の場合はフィルタなし）
         df_tmp=df_master[df_master.carrier==carrier] if carrier!="" else df_master    
