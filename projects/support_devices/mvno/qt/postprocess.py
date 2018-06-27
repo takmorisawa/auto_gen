@@ -18,6 +18,7 @@ def postprocess():
     
     for idx,col in df.iterrows():
 
+        col["name"]=col["name"].replace("\n","")
         m=re.match("(.+)\t(.+版)",col["name"])
         col["name"]=m.groups()[0].strip() if m else col["name"]
         col["carrier"]=m.groups()[1].strip() if m else ""
@@ -25,6 +26,8 @@ def postprocess():
         m=re.match("(.+)\t(.+)",col["name"])
         col["name"]=m.groups()[0].strip() if m else col["name"]
         col["model"]=m.groups()[1].strip() if m else ""
+        
+        col["name"]=col["name"].replace("\t","")
         
         #device smp mk015 dv0068
         m=re.match(".+ (.+) (mk\d+).+",col["type_maker"])
