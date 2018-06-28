@@ -5,8 +5,11 @@ import re
 
 def backup(src_path,dst_path):
     
+    print("backup...{0}".format(dst_path))
+    
     MAX_BACKUP_SIZE=5
     current_dir=os.path.dirname(os.path.abspath(__file__))
+    
     src_path=os.path.join(current_dir,src_path)
     dst_path=os.path.join(current_dir,dst_path)
     dst_root=os.path.dirname(dst_path)
@@ -21,11 +24,11 @@ def backup(src_path,dst_path):
     except:
         return False
     
-    # 作業よフォルダをカレントフォルダとしてリネーム
+    # 作業用フォルダをカレントフォルダとしてリネーム
     try:
         if os.path.exists(dst_path):
             shutil.rmtree(dst_path)
-        shutil.move(src_path,dst_path)
+        shutil.copytree(src_path,dst_path)
     except:
         #ロールバック（仮バックアップフォルダをカレントフォルダに戻す）
         if os.path.exists(tmp_dir):

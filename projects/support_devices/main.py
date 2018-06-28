@@ -6,7 +6,10 @@ import pandas as pd
 
 sys.path.append("../../")
 import scrape
+import crowl
+import diff
 import match
+import backup
 
 import mvno.ymobile.postprocess as yp
 import mvno.biglobe.postprocess as bp
@@ -21,7 +24,7 @@ import mvno.qt.postprocess as qp
 
 pipelines={
     "ymobile":[
-        lambda x:scrape.scrape("{0}/scrape.config".format(tid)),
+        lambda x:scrape.scrape("mvno/{0}/scrape.config".format(tid)),
         lambda x:yp.postprocess()],
     "biglobe":[
         lambda x:scrape.scrape("{0}/scrape.config".format(tid)),
@@ -51,35 +54,54 @@ pipelines={
 }
 
 def execute_unit(tid,pipeline,results):
- 
+
     for f in pipeline:
-        try:
-            results[tid]=f(tid)
-        except:
-            results[tid]=False
-            print("except:{0},{1}".format(tid,f))
-            traceback.print_exc() # トレースバック
-        finally:
-            if results[tid]==False:
-                return
+    #try:
+        results[tid]=f(tid)
+    #except:
+    #    results[tid]=False
+    #    print("except:{0},{1}".format(tid,f))
+    #    traceback.print_exc() # トレースバック
+    #finally:
+        #各ステージの処理でFalseを返したら以降のパイプラン処理をキャンセルする
+        if results[tid]==False:
+            return False
            
     return True # 全プロセス正常終了
+
+def test():
+    return True
 
 if __name__=="__main__":
 
     root=os.path.dirname(os.path.abspath(__file__))
     
+    pipelines_test={
+        "ymobile":[
+            lambda x:crowl.crowl("mvno/{0}/crowl.config".format(tid)),
+            lambda x:scrape.scrape("mvno/{0}/scrape.config".format(tid)),
+            lambda x:diff.diff(
+                    "projects/support_devices/mvno/{0}/tmp/csv/devices_{0}-scraped.csv".format(tid),
+                    "projects/support_devices/mvno/{0}/current/csv/devices_{0}-scraped.csv".format(tid),
+                    "projects/support_devices/mvno/{0}/tmp".format(tid)),
+            lambda x:backup.backup(
+                    "projects/support_devices/mvno/{0}/tmp".format(tid),
+                    "projects/support_devices/mvno/{0}/current".format(tid)),
+            lambda x:yp.postprocess()]
+        }
+    
     # 単体処理をマルチスレッドで実行
     results={}
     t_list=[]
-    for tid,pipeline in pipelines.items():
-        #t_list.append(threading.Thread(target=execute_unit,args=[tid,pipeline,results]))
-        #t_list[-1].start()
+    for tid,pipeline in pipelines_test.items():
+        t_list.append(threading.Thread(target=execute_unit,args=[tid,pipeline,results]))
+        t_list[-1].start()
         pass
         
     for t in t_list:
         t.join()
     
+    print(results)
     
     # 複合処理
         
@@ -89,7 +111,7 @@ if __name__=="__main__":
                 "mvno/mineo/csv/devices_mineoD-scraped-edited.csv",
                 "mvno/mineo/csv/devices_mineoA-scraped-edited.csv",
                 "mvno/uq/csv/devices_uq-scraped-edited.csv",
-                "mvno/ymobile/csv/devices_ymobile-scraped-edited.csv",
+                "mvno/ymobile/current/csv/devices_ymobile-scraped-edited.csv",
                 "mvno/rakuten/csv/devices_rakuten-scraped-edited.csv",
                 "mvno/ocn/csv/devices_ocn-scraped-edited.csv",
                 "mvno/iij/csv/devices_iijD-scraped-edited.csv",

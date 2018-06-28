@@ -42,7 +42,7 @@ def crowl(config_file_path):
     ending_url=config["ending_url"]
     target_xpath=config["target_xpath"]
     nextpage_xpath=config["nextpage_xpath"]
-    save_dir=config["save_dir"]
+    save_dir=os.path.join(root,config["save_dir"])
     render_js=config["render_js"] if "render_js" in config else 1
 
     shutil.rmtree(save_dir)
@@ -84,4 +84,4 @@ def crowl(config_file_path):
     
 if __name__ == '__main__':
 
-    crowl("projects/support_devices/mvno/dmm/crowl.config")
+    crowl("projects/support_devices/mvno/ymobile/crowl.config")

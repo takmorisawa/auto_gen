@@ -7,7 +7,7 @@ def postprocess():
     current_dir=os.path.dirname(os.path.abspath(__file__))
     print("processing...{0}".format(current_dir))
     
-    df=pd.read_csv(os.path.join(current_dir,"csv/devices_ymobile-scraped.csv"),index_col=0)
+    df=pd.read_csv(os.path.join(current_dir,"current/csv/devices_ymobile-scraped.csv"),index_col=0)
     df_edited=pd.DataFrame()
 
     for idx,col in df.iterrows():
@@ -57,7 +57,7 @@ def postprocess():
     #df_edited=df_edited.loc[:,["device_type","maker","name","model","carrier","unlock","org_name","sim","os","note"]]
     
     df_edited.index.name="id"      
-    df_edited.to_csv(os.path.join(current_dir,"csv/devices_ymobile-scraped-edited.csv"))
+    df_edited.to_csv(os.path.join(current_dir,"current/csv/devices_ymobile-scraped-edited.csv"))
 
 
 if __name__ == '__main__':
