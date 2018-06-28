@@ -4,6 +4,7 @@ import threading
 import json
 import pandas as pd
 import traceback
+import re
 
 sys.path.append("../../")
 import scrape
@@ -178,8 +179,8 @@ if __name__=="__main__":
     results={}
     t_list=[]
     for tid,pipeline in pipelines.items():
-        t_list.append(threading.Thread(target=execute_unit,args=[tid,pipeline,results]))
-        t_list[-1].start()
+        #t_list.append(threading.Thread(target=execute_unit,args=[tid,pipeline,results]))
+        #t_list[-1].start()
         pass
         
     for t in t_list:
@@ -187,30 +188,28 @@ if __name__=="__main__":
     
     print(results)
     
-def main_():
-    
     # 複合処理
         
-    df_master=pd.read_csv("kakaku/csv/devices_kakaku-scraped-edited.csv",index_col=0) 
-    df_list=[pd.read_csv(file_path,index_col=0).fillna("") for file_path in 
-             [
-                "mvno/mineo/csv/devices_mineoD-scraped-edited.csv",
-                "mvno/mineo/csv/devices_mineoA-scraped-edited.csv",
-                "mvno/uq/csv/devices_uq-scraped-edited.csv",
-                "mvno/ymobile/current/csv/devices_ymobile-scraped-edited.csv",
-                "mvno/rakuten/csv/devices_rakuten-scraped-edited.csv",
-                "mvno/ocn/csv/devices_ocn-scraped-edited.csv",
-                "mvno/iij/csv/devices_iijD-scraped-edited.csv",
-                "mvno/iij/csv/devices_iijA-scraped-edited.csv",
-                "mvno/linemobile/csv/devices_linemobile-scraped-edited.csv",
-                "mvno/biglobe/csv/devices_biglobeD-scraped-edited.csv",
-                "mvno/biglobe/csv/devices_biglobeA-scraped-edited.csv",
-                "mvno/qt/csv/devices_qtD-scraped-edited.csv",
-                "mvno/qt/csv/devices_qtA-scraped-edited.csv",
-                "mvno/qt/csv/devices_qtS-scraped-edited.csv",
-                "mvno/dmm/csv/devices_dmm-scraped-edited.csv",
-                "mvno/nifmo/csv/devices_nifmo-scraped-edited.csv"
-            ]]
+    df_master=pd.read_csv("kakaku/csv/devices_kakaku-scraped-edited.csv",index_col=0)
+    path_list=[
+            "mvno/mineo/current/csv/devices_mineoD-scraped-edited.csv",
+            "mvno/mineo/current/csv/devices_mineoA-scraped-edited.csv",
+            "mvno/uq/current/csv/devices_uq-scraped-edited.csv",
+            "mvno/ymobile/current/csv/devices_ymobile-scraped-edited.csv",
+            "mvno/rakuten/current/csv/devices_rakuten-scraped-edited.csv",
+            "mvno/ocn/current/csv/devices_ocn-scraped-edited.csv",
+            "mvno/iij/current/csv/devices_iijD-scraped-edited.csv",
+            "mvno/iij/current/csv/devices_iijA-scraped-edited.csv",
+            "mvno/linemobile/current/csv/devices_linemobile-scraped-edited.csv",
+            "mvno/biglobe/current/csv/devices_biglobeD-scraped-edited.csv",
+            "mvno/biglobe/current/csv/devices_biglobeA-scraped-edited.csv",
+            "mvno/qt/current/csv/devices_qtD-scraped-edited.csv",
+            "mvno/qt/current/csv/devices_qtA-scraped-edited.csv",
+            "mvno/qt/current/csv/devices_qtS-scraped-edited.csv",
+            "mvno/dmm/current/csv/devices_dmm-scraped-edited.csv",
+            "mvno/nifmo/current/csv/devices_nifmo-scraped-edited.csv"
+            ]
+    df_list=[pd.read_csv(file_path,index_col=0).fillna("") for file_path in path_list]
     name_list=["mineo_d","mineo_a","uq","ymobile","rakuten","ocn","IIJmio_d","IIJmio_a","linemobile",
                "biglobe_d","biglobe_a","qt_d","qt_a","qt_s","dmm","nifmo"]
 
@@ -243,6 +242,16 @@ def main_():
     # 保存
     for df,name in zip(df_list,name_list):
         df.to_csv(os.path.join(root,"csv/mvno/devices_{0}.csv").format(name))
+
+    # 更新日時を出力
+    date_info={}
+    for name,csv_path in zip(name_list,path_list):
+        date_dir=os.path.dirname(csv_path)
+        date_dir=os.path.join(os.path.dirname(date_dir),"html")
+        for file_name in [x for x in os.listdir(date_dir) if len(x)==8 and re.match("\d{8}",x)]:
+            date_info[name]=file_name
+    with open("csv/update_info.json","w") as f:
+        json.dump(date_info,f,indent=4,ensure_ascii=False)
 
     #for df,name in zip(df_list,name_list):
     #    print(name)
