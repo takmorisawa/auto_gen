@@ -6,3 +6,5 @@ __pycache__/
 *.zip
 *.png
 doc/
+csv/
+html/

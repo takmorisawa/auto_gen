@@ -53,6 +53,11 @@ def scrape(config_file_path):
         else x.strip() if isinstance(x,str) 
         else x, row) for row in rows]
     
+    # ディレクトリを作成
+    write_dir=os.path.dirname(writefile_path)
+    if os.path.exists(write_dir)==False:
+        os.mkdir(write_dir)
+    
     # ファイル出力する
     with open(writefile_path,"w") as f:
         writer=csv.writer(f, lineterminator='\r\n')

@@ -8,6 +8,7 @@ import traceback
 sys.path.append("../../")
 import scrape
 import crowl
+import scrapeTable
 import diff
 import match
 import backup
@@ -21,37 +22,133 @@ import mvno.ocn.postprocess as op
 import mvno.rakuten.postprocess as rp
 import mvno.iij.postprocess as ip
 import mvno.qt.postprocess as qp
+import mvno.dmm.postprocess as dp
+import mvno.nifmo.postprocess as np
 
 
 pipelines={
     "ymobile":[
+        lambda x:crowl.crowl("mvno/{0}/crowl.config".format(tid)),
         lambda x:scrape.scrape("mvno/{0}/scrape.config".format(tid)),
+        lambda x:diff.diff(
+                "mvno/{0}/tmp/csv/devices_{0}-scraped.csv".format(tid),
+                "mvno/{0}/current/csv/devices_{0}-scraped.csv".format(tid),
+                "mvno/{0}/tmp".format(tid)),
+        lambda x:backup.backup(
+                "mvno/{0}/tmp".format(tid),
+                "mvno/{0}/current".format(tid)),
         lambda x:yp.postprocess()],
     "biglobe":[
-        lambda x:scrape.scrape("{0}/scrape.config".format(tid)),
+        lambda x:crowl.crowl("mvno/{0}/crowl.config".format(tid)),
+        lambda x:scrape.scrape("mvno/{0}/scrape.config".format(tid)),
+        lambda x:diff.diff(
+                "mvno/{0}/tmp/csv/devices_{0}-scraped.csv".format(tid),
+                "mvno/{0}/current/csv/devices_{0}-scraped.csv".format(tid),
+                "mvno/{0}/tmp".format(tid)),
+        lambda x:backup.backup(
+                "mvno/{0}/tmp".format(tid),
+                "mvno/{0}/current".format(tid)),
         lambda x:bp.postprocess()],
     "uq":[
-        lambda x:scrape.scrape("{0}/scrape.config".format(tid)),
+        lambda x:crowl.crowl("mvno/{0}/crowl.config".format(tid)),
+        lambda x:scrape.scrape("mvno/{0}/scrape.config".format(tid)),
+        lambda x:diff.diff(
+                "mvno/{0}/tmp/csv/devices_{0}-scraped.csv".format(tid),
+                "mvno/{0}/current/csv/devices_{0}-scraped.csv".format(tid),
+                "mvno/{0}/tmp".format(tid)),
+        lambda x:backup.backup(
+                "mvno/{0}/tmp".format(tid),
+                "mvno/{0}/current".format(tid)),
         lambda x:up.postprocess()],
     "mineo":[
-        lambda x:scrape.scrape("{0}/scrape.config".format(tid)),
+        lambda x:crowl.crowl("mvno/{0}/crowl.config".format(tid)),
+        lambda x:scrape.scrape("mvno/{0}/scrape.config".format(tid)),
+        lambda x:diff.diff(
+                "mvno/{0}/tmp/csv/devices_{0}-scraped.csv".format(tid),
+                "mvno/{0}/current/csv/devices_{0}-scraped.csv".format(tid),
+                "mvno/{0}/tmp".format(tid)),
+        lambda x:backup.backup(
+                "mvno/{0}/tmp".format(tid),
+                "mvno/{0}/current".format(tid)),
         lambda x:mp.postprocess()],
     "linemobile":[
-        lambda x:scrape.scrape("{0}/scrape.config".format(tid)),
+        lambda x:crowl.crowl("mvno/{0}/crowl.config".format(tid)),
+        lambda x:scrape.scrape("mvno/{0}/scrape.config".format(tid)),
+        lambda x:diff.diff(
+                "mvno/{0}/tmp/csv/devices_{0}-scraped.csv".format(tid),
+                "mvno/{0}/current/csv/devices_{0}-scraped.csv".format(tid),
+                "mvno/{0}/tmp".format(tid)),
+        lambda x:backup.backup(
+                "mvno/{0}/tmp".format(tid),
+                "mvno/{0}/current".format(tid)),
         lambda x:lp.postprocess()],
     "ocn":[
-        lambda x:scrape.scrape("{0}/scrape.config".format(tid)),
+        lambda x:crowl.crowl("mvno/{0}/crowl.config".format(tid)),
+        lambda x:scrape.scrape("mvno/{0}/scrape.config".format(tid)),
+        lambda x:diff.diff(
+                "mvno/{0}/tmp/csv/devices_{0}-scraped.csv".format(tid),
+                "mvno/{0}/current/csv/devices_{0}-scraped.csv".format(tid),
+                "mvno/{0}/tmp".format(tid)),
+        lambda x:backup.backup(
+                "mvno/{0}/tmp".format(tid),
+                "mvno/{0}/current".format(tid)),
         lambda x:op.postprocess()],
     "rakuten":[
-        lambda x:scrape.scrape("{0}/scrape.config".format(tid)),
+        lambda x:crowl.crowl("mvno/{0}/crowl.config".format(tid)),
+        lambda x:scrape.scrape("mvno/{0}/scrape.config".format(tid)),
+        lambda x:diff.diff(
+                "mvno/{0}/tmp/csv/devices_{0}-scraped.csv".format(tid),
+                "mvno/{0}/current/csv/devices_{0}-scraped.csv".format(tid),
+                "mvno/{0}/tmp".format(tid)),
+        lambda x:backup.backup(
+                "mvno/{0}/tmp".format(tid),
+                "mvno/{0}/current".format(tid)),
         lambda x:rp.postprocess()],
     "iij":[
-        lambda x:scrape.scrape("{0}/scrape.config".format(tid)),
+        lambda x:crowl.crowl("mvno/{0}/crowl.config".format(tid)),
+        lambda x:scrape.scrape("mvno/{0}/scrape.config".format(tid)),
+        lambda x:diff.diff(
+                "mvno/{0}/tmp/csv/devices_{0}-scraped.csv".format(tid),
+                "mvno/{0}/current/csv/devices_{0}-scraped.csv".format(tid),
+                "mvno/{0}/tmp".format(tid)),
+        lambda x:backup.backup(
+                "mvno/{0}/tmp".format(tid),
+                "mvno/{0}/current".format(tid)),
         lambda x:ip.postprocess()],
     "qt":[
-        lambda x:scrape.scrape("{0}/scrape.config".format(tid)),
-        lambda x:scrape.scrape("{0}/scrape_mk.config".format(tid)),
-        lambda x:qp.postprocess()]
+        lambda x:crowl.crowl("mvno/{0}/crowl.config".format(tid)),
+        lambda x:scrape.scrape("mvno/{0}/scrape.config".format(tid)),
+        lambda x:scrape.scrape("mvno/{0}/scrape_mk.config".format(tid)),
+        lambda x:diff.diff(
+                "mvno/{0}/tmp/csv/devices_{0}-scraped.csv".format(tid),
+                "mvno/{0}/current/csv/devices_{0}-scraped.csv".format(tid),
+                "mvno/{0}/tmp".format(tid)),
+        lambda x:backup.backup(
+                "mvno/{0}/tmp".format(tid),
+                "mvno/{0}/current".format(tid)),
+        lambda x:qp.postprocess()],
+    "dmm":[
+        lambda x:crowl.crowl("mvno/{0}/crowl.config".format(tid)),
+        lambda x:scrapeTable.scrapeTable("mvno/{0}/scrape.config".format(tid)),
+        lambda x:diff.diff(
+                "mvno/{0}/tmp/csv/devices_{0}-scraped.csv".format(tid),
+                "mvno/{0}/current/csv/devices_{0}-scraped.csv".format(tid),
+                "mvno/{0}/tmp".format(tid)),
+        lambda x:backup.backup(
+                "mvno/{0}/tmp".format(tid),
+                "mvno/{0}/current".format(tid)),
+        lambda x:dp.postprocess()],
+    "nifmo":[
+        lambda x:crowl.crowl("mvno/{0}/crowl.config".format(tid)),
+        lambda x:scrapeTable.scrapeTable("mvno/{0}/scrape.config".format(tid)),
+        lambda x:diff.diff(
+                "mvno/{0}/tmp/csv/devices_{0}-scraped.csv".format(tid),
+                "mvno/{0}/current/csv/devices_{0}-scraped.csv".format(tid),
+                "mvno/{0}/tmp".format(tid)),
+        lambda x:backup.backup(
+                "mvno/{0}/tmp".format(tid),
+                "mvno/{0}/current".format(tid)),
+        lambda x:np.postprocess()]
 }
 
 def execute_unit(tid,pipeline,results):
@@ -77,24 +174,10 @@ if __name__=="__main__":
 
     root=os.path.dirname(os.path.abspath(__file__))
     
-    pipelines_test={
-        "ymobile":[
-            lambda x:crowl.crowl("mvno/{0}/crowl.config".format(tid)),
-            lambda x:scrape.scrape("mvno/{0}/scrape.config".format(tid)),
-            lambda x:diff.diff(
-                    "projects/support_devices/mvno/{0}/tmp/csv/devices_{0}-scraped.csv".format(tid),
-                    "projects/support_devices/mvno/{0}/current/csv/devices_{0}-scraped.csv".format(tid),
-                    "projects/support_devices/mvno/{0}/tmp".format(tid)),
-            lambda x:backup.backup(
-                    "projects/support_devices/mvno/{0}/tmp".format(tid),
-                    "projects/support_devices/mvno/{0}/current".format(tid)),
-            lambda x:yp.postprocess()]
-        }
-    
     # 単体処理をマルチスレッドで実行
     results={}
     t_list=[]
-    for tid,pipeline in pipelines_test.items():
+    for tid,pipeline in pipelines.items():
         t_list.append(threading.Thread(target=execute_unit,args=[tid,pipeline,results]))
         t_list[-1].start()
         pass
@@ -103,6 +186,8 @@ if __name__=="__main__":
         t.join()
     
     print(results)
+    
+def main_():
     
     # 複合処理
         

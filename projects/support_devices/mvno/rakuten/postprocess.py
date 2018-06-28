@@ -7,7 +7,7 @@ def postprocess():
     root=os.path.dirname(os.path.abspath(__file__))
     print("processing...{0}".format(root))
     
-    df=pd.read_csv(os.path.join(root,"csv/devices_rakuten-scraped.csv"),index_col=0)
+    df=pd.read_csv(os.path.join(root,"current/csv/devices_rakuten-scraped.csv"),index_col=0)
     df_edited=pd.DataFrame()
         
     carrier_list=["SIMフリー","docomo","au","SoftBank","ワイモバイル","WILLCOM","イー・モバイル","ディズニー・モバイル"]
@@ -46,7 +46,7 @@ def postprocess():
             df_edited=df_edited.append(col,ignore_index=True)
     
     df_edited.index.name="id"
-    df_edited.to_csv(os.path.join(root,"csv/devices_rakuten-scraped-edited.csv"))
+    df_edited.to_csv(os.path.join(root,"current/csv/devices_rakuten-scraped-edited.csv"))
     
 
 if __name__ == '__main__':

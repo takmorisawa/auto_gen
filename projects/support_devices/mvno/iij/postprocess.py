@@ -7,7 +7,7 @@ def postprocess():
     current_dir=os.path.dirname(os.path.abspath(__file__))
     print("processing...{0}".format(current_dir))
     
-    df=pd.read_csv(os.path.join(current_dir,"csv/devices_iij-scraped.csv"),index_col=0)
+    df=pd.read_csv(os.path.join(current_dir,"current/csv/devices_iij-scraped.csv"),index_col=0)
     df_edited=pd.DataFrame()
     dfA_edited=pd.DataFrame()
     
@@ -54,9 +54,9 @@ def postprocess():
             
             
     df_edited.index.name="id"      
-    df_edited.to_csv(os.path.join(current_dir,"csv/devices_iijD-scraped-edited.csv"))
+    df_edited.to_csv(os.path.join(current_dir,"current/csv/devices_iijD-scraped-edited.csv"))
     dfA_edited.index.name="id"      
-    dfA_edited.to_csv(os.path.join(current_dir,"csv/devices_iijA-scraped-edited.csv"))
+    dfA_edited.to_csv(os.path.join(current_dir,"current/csv/devices_iijA-scraped-edited.csv"))
     
 
 if __name__ == '__main__':

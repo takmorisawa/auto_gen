@@ -7,7 +7,7 @@ def postprocess():
     current_dir=os.path.dirname(os.path.abspath(__file__))
     print("processing...{0}".format(current_dir))
     
-    df=pd.read_csv(os.path.join(current_dir,"csv/devices_nifmo-scraped.csv"),index_col=0)
+    df=pd.read_csv(os.path.join(current_dir,"current/csv/devices_nifmo-scraped.csv"),index_col=0)
     df=df.rename(columns={'メーカー':"maker", '種別':"device_type", '通信事業者':"carrier", '機種名':"name", 'SIMサイズ':"sim1", 'その他':"note"})
     
     df_edited=pd.DataFrame()
@@ -41,7 +41,7 @@ def postprocess():
 
 
     df_edited.index.name="id"
-    df_edited.to_csv(os.path.join(current_dir,"csv/devices_nifmo-scraped-edited.csv"))
+    df_edited.to_csv(os.path.join(current_dir,"current/csv/devices_nifmo-scraped-edited.csv"))
 
 
 if __name__ == '__main__':

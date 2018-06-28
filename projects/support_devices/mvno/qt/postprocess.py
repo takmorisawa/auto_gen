@@ -7,14 +7,14 @@ def postprocess():
     root=os.path.dirname(os.path.abspath(__file__))
     print("processing...{0}".format(root))
     
-    df=pd.read_csv(os.path.join(root,"csv/devices_qt-scraped.csv"),index_col=0)
+    df=pd.read_csv(os.path.join(root,"current/csv/devices_qt-scraped.csv"),index_col=0)
     df=df.fillna("")
     
     dfD_edited=pd.DataFrame()
     dfA_edited=pd.DataFrame()
     dfS_edited=pd.DataFrame()
     
-    df_mk=pd.read_csv(os.path.join(root,"csv/devices_qtmk-scraped.csv"),index_col=0)
+    df_mk=pd.read_csv(os.path.join(root,"current/csv/devices_qtmk-scraped.csv"),index_col=0)
     
     for idx,col in df.iterrows():
 
@@ -47,11 +47,11 @@ def postprocess():
         if col["plan"]=="Aタイプ": dfA_edited=dfA_edited.append(col,ignore_index=True)
     
     dfD_edited.index.name="id"
-    dfD_edited.to_csv(os.path.join(root,"csv/devices_qtD-scraped-edited.csv"))
+    dfD_edited.to_csv(os.path.join(root,"current/csv/devices_qtD-scraped-edited.csv"))
     dfA_edited.index.name="id"
-    dfA_edited.to_csv(os.path.join(root,"csv/devices_qtA-scraped-edited.csv"))
+    dfA_edited.to_csv(os.path.join(root,"current/csv/devices_qtA-scraped-edited.csv"))
     dfS_edited.index.name="id"
-    dfS_edited.to_csv(os.path.join(root,"csv/devices_qtS-scraped-edited.csv"))
+    dfS_edited.to_csv(os.path.join(root,"current/csv/devices_qtS-scraped-edited.csv"))
     
 
 if __name__ == '__main__':

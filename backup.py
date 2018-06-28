@@ -8,10 +8,10 @@ def backup(src_path,dst_path):
     print("backup...{0}".format(dst_path))
     
     MAX_BACKUP_SIZE=5
-    current_dir=os.path.dirname(os.path.abspath(__file__))
+    #current_dir=os.path.dirname(os.path.abspath(__file__))
     
-    src_path=os.path.join(current_dir,src_path)
-    dst_path=os.path.join(current_dir,dst_path)
+    #src_path=os.path.join(current_dir,src_path)
+    #dst_path=os.path.join(current_dir,dst_path)
     dst_root=os.path.dirname(dst_path)
     tmp_dir=os.path.join(dst_root,"_tmp")
     

@@ -70,7 +70,12 @@ def scrapeTable(config_file_path):
         for table in dom.xpath(tables_xpath):
             
             df=df.append(table2df(table,header_xpath,extra_xpath),ignore_index=True)
-     
+
+    # ディレクトリを作成
+    write_dir=os.path.dirname(writefile_path)
+    if os.path.exists(write_dir)==False:
+        os.mkdir(write_dir)
+        
     # ファイル出力する
     df.to_csv(writefile_path)
         

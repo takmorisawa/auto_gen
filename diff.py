@@ -5,11 +5,14 @@ def diff(filepath1,filepath2,outdir):
     
     print("diff...{0}".format(outdir))
     
-    root=os.path.dirname(os.path.abspath(__file__))
+    #root=os.path.dirname(os.path.abspath(__file__))
     
-    filepath1=os.path.join(root,filepath1)
-    filepath2=os.path.join(root,filepath2)
-    outdir=os.path.join(root,outdir)
+    #filepath1=os.path.join(root,filepath1)
+    #filepath2=os.path.join(root,filepath2)
+    #outdir=os.path.join(root,outdir)
+    
+    if (os.path.exists(filepath1) and os.path.exists(filepath2))==False:
+        return False
     
     with open(filepath1,"r",encoding="utf-8") as f:
         text1=[row for row in f]
@@ -19,6 +22,9 @@ def diff(filepath1,filepath2,outdir):
         
     d=difflib.HtmlDiff()
     html=d.make_table(text1,text2)
+    
+    if os.path.exists(outdir)==False:
+        os.path.mkdir(outdir)
     
     with open(os.path.join(outdir,"diff.html"),"w") as f:
         f.write(html)

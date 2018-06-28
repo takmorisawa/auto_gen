@@ -7,7 +7,7 @@ def postprocess():
     current_dir=os.path.dirname(os.path.abspath(__file__))
     print("processing...{0}".format(current_dir))
     
-    df=pd.read_csv(os.path.join(current_dir,"csv/devices_mineo-scraped.csv"),index_col=0)
+    df=pd.read_csv(os.path.join(current_dir,"current/csv/devices_mineo-scraped.csv"),index_col=0)
     df_edited=pd.DataFrame()
     dfA_edited=pd.DataFrame()
 
@@ -34,9 +34,9 @@ def postprocess():
     #df_edited=df_edited.loc[:,["plan","device_type","carrier","maker","name","model","org_name","sim1","sim2","single","dual","tethering","sms","version","note"]]
 
     df_edited.index.name="id"      
-    df_edited.to_csv(os.path.join(current_dir,"csv/devices_mineoD-scraped-edited.csv"))
+    df_edited.to_csv(os.path.join(current_dir,"current/csv/devices_mineoD-scraped-edited.csv"))
     dfA_edited.index.name="id"      
-    dfA_edited.to_csv(os.path.join(current_dir,"csv/devices_mineoA-scraped-edited.csv"))
+    dfA_edited.to_csv(os.path.join(current_dir,"current/csv/devices_mineoA-scraped-edited.csv"))
     
 if __name__ == '__main__':
 

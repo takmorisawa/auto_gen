@@ -7,7 +7,7 @@ def postprocess():
     current_dir=os.path.dirname(os.path.abspath(__file__))
     print("processing...{0}".format(current_dir))
     
-    df=pd.read_csv(os.path.join(current_dir,"csv/devices_dmm-scraped.csv"),index_col=0)
+    df=pd.read_csv(os.path.join(current_dir,"current/csv/devices_dmm-scraped.csv"),index_col=0)
     df=df.rename(columns={'メーカー':"maker", '種別':"device_type", '端末':"name", 'LTE':"data", 'SIMカードサイズ':"sim", 
                   'テザリング':"tethering", 'アンテナピクト表示':"pict", '音声通話':"call",'動作確認時のバージョン':"os", '備考':"note"})
     df=df.fillna("")
@@ -34,7 +34,7 @@ def postprocess():
             
 
     df_edited.index.name="id"      
-    df_edited.to_csv(os.path.join(current_dir,"csv/devices_dmm-scraped-edited.csv"))
+    df_edited.to_csv(os.path.join(current_dir,"current/csv/devices_dmm-scraped-edited.csv"))
 
 
 if __name__ == '__main__':

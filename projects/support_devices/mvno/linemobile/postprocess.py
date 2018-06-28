@@ -7,7 +7,7 @@ def postprocess():
     current_dir=os.path.dirname(os.path.abspath(__file__))
     print("processing...{0}".format(current_dir))
     
-    df=pd.read_csv(os.path.join(current_dir,"csv/devices_linemobile-scraped.csv"),index_col=0)
+    df=pd.read_csv(os.path.join(current_dir,"current/csv/devices_linemobile-scraped.csv"),index_col=0)
     df_edited=pd.DataFrame()
     #print(df.columns)
     
@@ -57,7 +57,7 @@ def postprocess():
     #             "device_type","sim","3G/LTE","tethering","os","note"]]
     
     df_edited.index.name="id"
-    df_edited.to_csv(os.path.join(current_dir,"csv/devices_linemobile-scraped-edited.csv"))
+    df_edited.to_csv(os.path.join(current_dir,"current/csv/devices_linemobile-scraped-edited.csv"))
     
 
 if __name__ == '__main__':

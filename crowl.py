@@ -7,6 +7,7 @@ from time import sleep
 import os
 import uuid
 import shutil
+import datetime
 
 from selenium.webdriver import Chrome, ChromeOptions
 
@@ -45,9 +46,15 @@ def crowl(config_file_path):
     save_dir=os.path.join(root,config["save_dir"])
     render_js=config["render_js"] if "render_js" in config else 1
 
-    shutil.rmtree(save_dir)
+    if os.path.exists(save_dir):
+        shutil.rmtree(save_dir)
     #os.rmdir(save_dir)
     os.mkdir(save_dir)
+    
+    # タイムスタンプを残す
+    path=os.path.join(root,"{0}/{1}".format(save_dir,datetime.date.today().strftime("%Y%m%d")))
+    with open(path,"w") as f:
+        pass
 
     for url in starting_urls:
         
