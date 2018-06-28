@@ -3,6 +3,7 @@ import os
 import threading
 import json
 import pandas as pd
+import traceback
 
 sys.path.append("../../")
 import scrape
@@ -56,16 +57,16 @@ pipelines={
 def execute_unit(tid,pipeline,results):
 
     for f in pipeline:
-    #try:
-        results[tid]=f(tid)
-    #except:
-    #    results[tid]=False
-    #    print("except:{0},{1}".format(tid,f))
-    #    traceback.print_exc() # トレースバック
-    #finally:
-        #各ステージの処理でFalseを返したら以降のパイプラン処理をキャンセルする
-        if results[tid]==False:
-            return False
+        try:
+            results[tid]=f(tid)
+        except Exception as e:
+            results[tid]=False
+            print("except:{0}".format(e))
+            #traceback.print_exc() # トレースバック
+        finally:
+            #各ステージの処理でFalseを返したら以降のパイプラン処理をキャンセルする
+            if results[tid]==False:
+                return False
            
     return True # 全プロセス正常終了
 
