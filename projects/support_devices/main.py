@@ -150,7 +150,29 @@ pipelines={
                 "mvno/{0}/tmp".format(tid),
                 "mvno/{0}/current".format(tid)),
         lambda x:np.postprocess()]
-}
+    }
+
+path_list=[
+        "mvno/mineo/current/csv/devices_mineoD-scraped-edited.csv",
+        "mvno/mineo/current/csv/devices_mineoA-scraped-edited.csv",
+        "mvno/uq/current/csv/devices_uq-scraped-edited.csv",
+        "mvno/ymobile/current/csv/devices_ymobile-scraped-edited.csv",
+        "mvno/rakuten/current/csv/devices_rakuten-scraped-edited.csv",
+        "mvno/ocn/current/csv/devices_ocn-scraped-edited.csv",
+        "mvno/iij/current/csv/devices_iijD-scraped-edited.csv",
+        "mvno/iij/current/csv/devices_iijA-scraped-edited.csv",
+        "mvno/linemobile/current/csv/devices_linemobile-scraped-edited.csv",
+        "mvno/biglobe/current/csv/devices_biglobeD-scraped-edited.csv",
+        "mvno/biglobe/current/csv/devices_biglobeA-scraped-edited.csv",
+        "mvno/qt/current/csv/devices_qtD-scraped-edited.csv",
+        "mvno/qt/current/csv/devices_qtA-scraped-edited.csv",
+        "mvno/qt/current/csv/devices_qtS-scraped-edited.csv",
+        "mvno/dmm/current/csv/devices_dmm-scraped-edited.csv",
+        "mvno/nifmo/current/csv/devices_nifmo-scraped-edited.csv"
+        ]
+
+name_list=["mineo_d","mineo_a","uq","ymobile","rakuten","ocn","IIJmio_d","IIJmio_a","linemobile",
+           "biglobe_d","biglobe_a","qt_d","qt_a","qt_s","dmm","nifmo"]
 
 def execute_unit(tid,pipeline,results):
 
@@ -159,7 +181,7 @@ def execute_unit(tid,pipeline,results):
             results[tid]=f(tid)
         except Exception as e:
             results[tid]=False
-            print("except:{0}".format(e))
+            print("except:{0},{1}".format(e,tid))
             #traceback.print_exc() # トレースバック
         finally:
             #各ステージの処理でFalseを返したら以降のパイプラン処理をキャンセルする
@@ -168,50 +190,33 @@ def execute_unit(tid,pipeline,results):
            
     return True # 全プロセス正常終了
 
-def test():
-    return True
 
 if __name__=="__main__":
 
     root=os.path.dirname(os.path.abspath(__file__))
     
-    # 単体処理をマルチスレッドで実行
+    # ■■■単体処理■■■
     results={}
     t_list=[]
     for tid,pipeline in pipelines.items():
+        #execute_unit(tid,pipeline,results)
+        
+        ## マルチスレッドの場合
         #t_list.append(threading.Thread(target=execute_unit,args=[tid,pipeline,results]))
         #t_list[-1].start()
         pass
         
-    for t in t_list:
-        t.join()
+    #for t in t_list:
+    #    t.join()
     
     print(results)
     
-    # 複合処理
+    # ■■■複合処理■■■
         
+    # マスターDB
     df_master=pd.read_csv("kakaku/csv/devices_kakaku-scraped-edited.csv",index_col=0)
-    path_list=[
-            "mvno/mineo/current/csv/devices_mineoD-scraped-edited.csv",
-            "mvno/mineo/current/csv/devices_mineoA-scraped-edited.csv",
-            "mvno/uq/current/csv/devices_uq-scraped-edited.csv",
-            "mvno/ymobile/current/csv/devices_ymobile-scraped-edited.csv",
-            "mvno/rakuten/current/csv/devices_rakuten-scraped-edited.csv",
-            "mvno/ocn/current/csv/devices_ocn-scraped-edited.csv",
-            "mvno/iij/current/csv/devices_iijD-scraped-edited.csv",
-            "mvno/iij/current/csv/devices_iijA-scraped-edited.csv",
-            "mvno/linemobile/current/csv/devices_linemobile-scraped-edited.csv",
-            "mvno/biglobe/current/csv/devices_biglobeD-scraped-edited.csv",
-            "mvno/biglobe/current/csv/devices_biglobeA-scraped-edited.csv",
-            "mvno/qt/current/csv/devices_qtD-scraped-edited.csv",
-            "mvno/qt/current/csv/devices_qtA-scraped-edited.csv",
-            "mvno/qt/current/csv/devices_qtS-scraped-edited.csv",
-            "mvno/dmm/current/csv/devices_dmm-scraped-edited.csv",
-            "mvno/nifmo/current/csv/devices_nifmo-scraped-edited.csv"
-            ]
+    # mvnoDBのリスト
     df_list=[pd.read_csv(file_path,index_col=0).fillna("") for file_path in path_list]
-    name_list=["mineo_d","mineo_a","uq","ymobile","rakuten","ocn","IIJmio_d","IIJmio_a","linemobile",
-               "biglobe_d","biglobe_a","qt_d","qt_a","qt_s","dmm","nifmo"]
 
     # 辞書を入力
     with open("dic/dic_carrier.json","r",encoding="utf-8") as f:
@@ -236,7 +241,8 @@ if __name__=="__main__":
         match.get_new(dic,item_set)
         
     # 表記揺れ解消
-    for df in df_list:
+    for df,name in zip(df_list,name_list):
+        print("replacing device type...{0}".format(name))
         df["device_type"]=[match.get_first(t,match.dic_type) for t in df["device_type"]]
         
     # 保存
