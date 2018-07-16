@@ -26,7 +26,10 @@ import mvno.qt.postprocess as qp
 import mvno.dmm.postprocess as dp
 import mvno.nifmo.postprocess as np
 
+import mvno.linemobile.genConf as genConf
 
+
+# tidがここでは未定義なので注意
 pipelines={
     "ymobile":[
         lambda x:crowl.crowl("mvno/{0}/crowl.config".format(tid)),
@@ -73,15 +76,18 @@ pipelines={
                 "mvno/{0}/current".format(tid)),
         lambda x:mp.postprocess()],
     "linemobile":[
-        lambda x:crowl.crowl("mvno/{0}/crowl.config".format(tid)),
-        lambda x:scrape.scrape("mvno/{0}/scrape.config".format(tid)),
+        lambda x:crowl.crowl("mvno/{0}/crowl_mk.config".format(x)),
+        lambda x:scrape.scrape("mvno/{0}/scrape_mk.config".format(x)),
+        lambda x:genConf.genConf("tmp/csv/maker-scraped.csv","crowl.config"),
+        lambda x:crowl.crowl("mvno/{0}/crowl.config".format(x)),
+        lambda x:scrape.scrape("mvno/{0}/scrape.config".format(x)),
         lambda x:diff.diff(
-                "mvno/{0}/tmp/csv/devices_{0}-scraped.csv".format(tid),
-                "mvno/{0}/current/csv/devices_{0}-scraped.csv".format(tid),
-                "mvno/{0}/tmp".format(tid)),
+                "mvno/{0}/tmp/csv/devices_{0}-scraped.csv".format(x),
+                "mvno/{0}/current/csv/devices_{0}-scraped.csv".format(x),
+                "mvno/{0}/tmp".format(x)),
         lambda x:backup.backup(
-                "mvno/{0}/tmp".format(tid),
-                "mvno/{0}/current".format(tid)),
+                "mvno/{0}/tmp".format(x),
+                "mvno/{0}/current".format(x)),
         lambda x:lp.postprocess()],
     "ocn":[
         lambda x:crowl.crowl("mvno/{0}/crowl.config".format(tid)),
@@ -152,6 +158,7 @@ pipelines={
         lambda x:np.postprocess()]
     }
 
+# pathとnameのリストを統合したい
 path_list=[
         "mvno/mineo/current/csv/devices_mineoD-scraped-edited.csv",
         "mvno/mineo/current/csv/devices_mineoA-scraped-edited.csv",
@@ -161,7 +168,8 @@ path_list=[
         "mvno/ocn/current/csv/devices_ocn-scraped-edited.csv",
         "mvno/iij/current/csv/devices_iijD-scraped-edited.csv",
         "mvno/iij/current/csv/devices_iijA-scraped-edited.csv",
-        "mvno/linemobile/current/csv/devices_linemobile-scraped-edited.csv",
+        "mvno/linemobile/current/csv/devices_linemobileD-scraped-edited.csv",
+        "mvno/linemobile/current/csv/devices_linemobileS-scraped-edited.csv",
         "mvno/biglobe/current/csv/devices_biglobeD-scraped-edited.csv",
         "mvno/biglobe/current/csv/devices_biglobeA-scraped-edited.csv",
         "mvno/qt/current/csv/devices_qtD-scraped-edited.csv",
@@ -171,7 +179,7 @@ path_list=[
         "mvno/nifmo/current/csv/devices_nifmo-scraped-edited.csv"
         ]
 
-name_list=["mineo_d","mineo_a","uq","ymobile","rakuten","ocn","IIJmio_d","IIJmio_a","linemobile",
+name_list=["mineo_d","mineo_a","uq","ymobile","rakuten","ocn","IIJmio_d","IIJmio_a","linemobile_d","linemobile_s",
            "biglobe_d","biglobe_a","qt_d","qt_a","qt_s","dmm","nifmo"]
 
 def execute_unit(tid,pipeline,results):
@@ -181,7 +189,7 @@ def execute_unit(tid,pipeline,results):
             results[tid]=f(tid)
         except Exception as e:
             results[tid]=False
-            print("except:{0},{1}".format(e,tid))
+            print("■■■ except ■■■:{0},{1}".format(e,tid))
             #traceback.print_exc() # トレースバック
         finally:
             #各ステージの処理でFalseを返したら以降のパイプラン処理をキャンセルする
@@ -199,7 +207,7 @@ if __name__=="__main__":
     results={}
     t_list=[]
     for tid,pipeline in pipelines.items():
-        #execute_unit(tid,pipeline,results)
+        execute_unit(tid,pipeline,results)
         
         ## マルチスレッドの場合
         #t_list.append(threading.Thread(target=execute_unit,args=[tid,pipeline,results]))
@@ -210,7 +218,7 @@ if __name__=="__main__":
     #    t.join()
     
     print(results)
-    
+
     # ■■■複合処理■■■
         
     # マスターDB
@@ -243,7 +251,10 @@ if __name__=="__main__":
     # 表記揺れ解消
     for df,name in zip(df_list,name_list):
         print("replacing device type...{0}".format(name))
-        df["device_type"]=[match.get_first(t,match.dic_type) for t in df["device_type"]]
+        if "device_type" in df.columns:
+            df["device_type"]=[match.get_first(t,match.dic_type) for t in df["device_type"]]
+        else:
+            df["device_type"]=""
         
     # 保存
     for df,name in zip(df_list,name_list):

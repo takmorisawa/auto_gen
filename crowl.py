@@ -10,17 +10,35 @@ import shutil
 import datetime
 
 from selenium.webdriver import Chrome, ChromeOptions
+#from selenium.webdriver.support import expected_conditions as EC
+#from selenium.webdriver.support.ui import WebDriverWait
+#from selenium.webdriver.common.by import By
 
 options = ChromeOptions()            
 options.add_argument('--headless')
 driver = Chrome(options=options)
-    
-def request(url,render_js):
+driver.set_window_size(2560,1600)
+
+def request(url,render_js,morebutton_xpath=""):
     
     html=""
     if render_js:
         driver.get(url)
+
+        # 「さらに表示」ボタンをクリック
+        if morebutton_xpath:
+            get_button=lambda:driver.find_element_by_xpath(morebutton_xpath)
+            button=get_button()
+            while button.is_displayed():
+                print("morebutton:", button.text)
+                button.click()
+                driver.execute_script('scroll(0,document.body.scrollHeight)')
+                button=get_button()
+                #wait=WebDriverWait(driver,5)
+                #button=wait.until(EC.element_to_be_clickable((By.XPATH,morebutton_xpath)))
+                
         html = driver.page_source
+        driver.save_screenshot("page.png") # print screen
     else:
         # 不具合の可能性あり
         html=urlopen(url).read()
@@ -45,6 +63,7 @@ def crowl(config_file_path):
     nextpage_xpath=config["nextpage_xpath"]
     save_dir=os.path.join(root,config["save_dir"])
     render_js=config["render_js"] if "render_js" in config else 1
+    morebutton_xpath=config["morebutton_xpath"] if "morebutton_xpath" in config else None
 
     if os.path.exists(save_dir):
         shutil.rmtree(save_dir)
@@ -62,7 +81,7 @@ def crowl(config_file_path):
             
             print("crowling...{0}".format(url))
             
-            html=request(url,render_js)
+            html=request(url,render_js,morebutton_xpath)
             dom=lxml.html.fromstring(html)
             
             targets=[]
@@ -91,4 +110,4 @@ def crowl(config_file_path):
     
 if __name__ == '__main__':
 
-    crowl("projects/support_devices/mvno/ymobile/crowl.config")
+    crowl("projects/support_devices/mvno/linemobile/crowl.config")
