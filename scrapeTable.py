@@ -12,6 +12,7 @@ header_xpath
 extra_xpath
 tables_xpath
 writefile_path
+header_size
 """
 
 def fillCells(df, td, irow):
@@ -27,7 +28,7 @@ def fillCells(df, td, irow):
     df.iloc[irow:irow+rspan,icol:icol+cspan]="\t".join(td.xpath(".//text()"))
 
 
-def table2df(table,header_xpath,extra_xpath):
+def table2df(table,header_xpath,header_size):
     
     # theadを使用しない場合を考慮
     #ths=table.xpath("./thead//th | ./tbody/tr[1][not(./td)]/th")
@@ -35,17 +36,17 @@ def table2df(table,header_xpath,extra_xpath):
     trs=table.xpath("./tbody/tr[./td]")
     
     cols=["".join(th.xpath(".//text()")) for th in ths]
-    cols=[i for i in range(50)]
     
-    n_hrows=2
-    n_hcols=50
-    htrs=table.xpath("./tbody/tr[./th]")
-    df_col=pd.DataFrame(np.full((n_hrows, n_hcols),None))
-    for tr,irow in zip(htrs,range(n_hrows)):
-        for td in tr.xpath("./th"):
-            fillCells(df_col,td,irow)
-    cols=["_".join(item) for idx, item in df_col.iteritems()]
-        
+    # ヘッダが複数行にわたる場合
+    if header_size[0]>0:
+        htrs=table.xpath("./tbody/tr[./th]") # ヘッダ行
+        df_col=pd.DataFrame(np.full((header_size[0], header_size[1]),None))
+        for tr,irow in zip(htrs,range(header_size[0])):
+            for td in tr.xpath("./th"):
+                fillCells(df_col,td,irow)
+        cols=["_".join(item) for idx, item in df_col.iteritems()]
+    
+    # 先にテーブルの必要な領域を確保
     df=pd.DataFrame(np.full((len(trs),len(cols)),None),columns=cols)
     
     for tr,irow in zip(trs,range(len(trs))): # 行のイテレート
@@ -69,6 +70,7 @@ def scrapeTable(config_file_path):
     header_xpath=config["header_xpath"]
     extra_xpath=config["extra_xpath"]
     tables_xpath=config["tables_xpath"]
+    header_size=config["header_size"] if "header_size" in config else [0,0]
     writefile_path=os.path.join(root,config["writefile_path"])
 
     # デフォルト値を設定
@@ -76,6 +78,7 @@ def scrapeTable(config_file_path):
     if tables_xpath == "" : tables_xpath="//table"
 
     # 指定ディレクトリからHTMLファイルを取得する
+    df=pd.DataFrame()
     files = os.listdir(html_files)
     for file in [_ for _ in files if os.path.splitext(_)[1]==".html"]:
         
@@ -91,10 +94,9 @@ def scrapeTable(config_file_path):
         dom=lxml.html.fromstring(html)
         
         # 行に対応するXpathで探索してイテレート
-        df=pd.DataFrame()
         for table in dom.xpath(tables_xpath):
             
-            df=df.append(table2df(table,header_xpath,extra_xpath),ignore_index=True)
+            df=df.append(table2df(table,header_xpath,header_size),ignore_index=True)
 
     # ディレクトリを作成
     write_dir=os.path.dirname(writefile_path)
