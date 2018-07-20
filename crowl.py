@@ -14,6 +14,19 @@ from selenium.webdriver import Chrome, ChromeOptions
 #from selenium.webdriver.support.ui import WebDriverWait
 #from selenium.webdriver.common.by import By
 
+"""
+config
+
+starting_urls
+ending_url
+target_xpath
+nextpage_xpath
+save_dir
+render_js
+morebutton_xpath
+nextscript_xpath
+"""
+
 options = ChromeOptions()            
 options.add_argument('--headless')
 driver = Chrome(options=options)
@@ -23,7 +36,9 @@ def request(url,render_js,morebutton_xpath=""):
     
     html=""
     if render_js:
-        driver.get(url)
+        
+        if url!="_nextpage_":
+            driver.get(url)
 
         # 「さらに表示」ボタンをクリック
         if morebutton_xpath:
@@ -64,6 +79,7 @@ def crowl(config_file_path):
     save_dir=os.path.join(root,config["save_dir"])
     render_js=config["render_js"] if "render_js" in config else 1
     morebutton_xpath=config["morebutton_xpath"] if "morebutton_xpath" in config else None
+    nextscript_xpath=config["nextscript_xpath"] if "nextscript_xpath" in config else None
 
     if os.path.exists(save_dir):
         shutil.rmtree(save_dir)
@@ -84,30 +100,35 @@ def crowl(config_file_path):
             html=request(url,render_js,morebutton_xpath)
             dom=lxml.html.fromstring(html)
             
-            targets=[]
             if target_xpath=="":    
                 path=os.path.join(root,"{0}/{1}.html".format(save_dir,uuid.uuid1()))
                 with open(path,"w") as f:
                     f.write(html) # ファイル出力
-                url=""
             else:
-                targets=dom.xpath(target_xpath)
-                
-            for target in targets:
-                url=urljoin(starting_urls[0],target)
-                html=request(url,render_js)
-                path=os.path.join(root,"{0}/{1}.html".format(save_dir,uuid.uuid1()))
-                with open(path,"w") as f:
-                    f.write(html) # ファイル出力
+                # 1ページにダウンロードするURLが複数ある場合
+                for target in dom.xpath(target_xpath):
+                    url=urljoin(starting_urls[0],target)
+                    html=request(url,render_js)
+                    path=os.path.join(root,"{0}/{1}.html".format(save_dir,uuid.uuid1()))
+                    with open(path,"w") as f:
+                        f.write(html) # ファイル出力
             
+            url="" # urlが空白の場合はループを抜ける
+            
+            # 次のページへのボタンをクリック
+            if nextscript_xpath:
+                next_script=dom.xpath(nextscript_xpath)
+                if len(next_script)!=0:
+                    driver.execute_script(next_script[0])
+                    url="_nextpage_"
+            
+            # 次のページへのURLを取得
             if nextpage_xpath!="":
                 nextpage=dom.xpath(nextpage_xpath)
-                if len(nextpage)==0:
-                    break
-                else:
+                if len(nextpage)!=0:
                     url=urljoin(starting_urls[0],nextpage[0])
 
     
 if __name__ == '__main__':
 
-    crowl("projects/support_devices/mvno/linemobile/crowl.config")
+    crowl("projects/support_devices/smp_spec/crowl.config")

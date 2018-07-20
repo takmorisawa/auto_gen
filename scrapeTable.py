@@ -4,6 +4,29 @@ import os
 import numpy as np
 import pandas as pd
 
+"""
+config
+
+html_files
+header_xpath
+extra_xpath
+tables_xpath
+writefile_path
+"""
+
+def fillCells(df, td, irow):
+    
+    icol=np.where(df.iloc[irow,:].values==None)[0][0]
+    
+    rspan=td.xpath("normalize-space(./@rowspan)")
+    rspan=int(rspan) if rspan!="" else 1
+    
+    cspan=td.xpath("normalize-space(./@colspan)")
+    cspan=int(cspan) if cspan!="" else 1
+    
+    df.iloc[irow:irow+rspan,icol:icol+cspan]="\t".join(td.xpath(".//text()"))
+
+
 def table2df(table,header_xpath,extra_xpath):
     
     # theadを使用しない場合を考慮
@@ -12,20 +35,22 @@ def table2df(table,header_xpath,extra_xpath):
     trs=table.xpath("./tbody/tr[./td]")
     
     cols=["".join(th.xpath(".//text()")) for th in ths]
-    df=pd.DataFrame(np.full((len(trs),len(ths)),None),columns=cols)
+    cols=[i for i in range(50)]
+    
+    n_hrows=2
+    n_hcols=50
+    htrs=table.xpath("./tbody/tr[./th]")
+    df_col=pd.DataFrame(np.full((n_hrows, n_hcols),None))
+    for tr,irow in zip(htrs,range(n_hrows)):
+        for td in tr.xpath("./th"):
+            fillCells(df_col,td,irow)
+    cols=["_".join(item) for idx, item in df_col.iteritems()]
+        
+    df=pd.DataFrame(np.full((len(trs),len(cols)),None),columns=cols)
     
     for tr,irow in zip(trs,range(len(trs))): # 行のイテレート
         for td in tr.xpath("./th | ./td"): # 列のイテレート（ヘッダカラムを考慮）
-            
-            icol=np.where(df.iloc[irow,:].values==None)[0][0]
-            
-            rspan=td.xpath("normalize-space(./@rowspan)")
-            rspan=int(rspan) if rspan!="" else 1
-            
-            cspan=td.xpath("normalize-space(./@colspan)")
-            cspan=int(rspan) if cspan!="" else 1
-            
-            df.iloc[irow:irow+rspan,icol:icol+cspan]="\t".join(td.xpath(".//text()"))
+            fillCells(df,td,irow)
             
     return df
             
@@ -82,4 +107,4 @@ def scrapeTable(config_file_path):
     
 if __name__ == '__main__':
 
-    scrapeTable("projects/support_devices/mvno/nifmo/scrape.config")
+    scrapeTable("projects/support_devices/smp_spec/scrape.config")
