@@ -28,7 +28,7 @@ def fillCells(df, td, irow):
     df.iloc[irow:irow+rspan,icol:icol+cspan]="\t".join(td.xpath(".//text()"))
 
 
-def table2df(table,header_xpath,header_size):
+def table2df(table,header_xpath,header_size,extra_cols):
     
     # theadを使用しない場合を考慮
     #ths=table.xpath("./thead//th | ./tbody/tr[1][not(./td)]/th")
@@ -49,9 +49,17 @@ def table2df(table,header_xpath,header_size):
     # 先にテーブルの必要な領域を確保
     df=pd.DataFrame(np.full((len(trs),len(cols)),None),columns=cols)
     
+    # 追加用カラムを初期化
+    for col in [item[0] for item in extra_cols]:
+        df[col]=""
+    
     for tr,irow in zip(trs,range(len(trs))): # 行のイテレート
         for td in tr.xpath("./th | ./td"): # 列のイテレート（ヘッダカラムを考慮）
             fillCells(df,td,irow)
+        
+        # 追加用カラムに値を入力
+        for val in [item[1] for item in extra_cols]:
+            df.iloc[irow,len(cols)]=tr.xpath(val)
             
     return df
             
@@ -68,7 +76,7 @@ def scrapeTable(config_file_path):
     
     html_files=os.path.join(root,config["html_files"])
     header_xpath=config["header_xpath"]
-    extra_xpath=config["extra_xpath"]
+    extra_cols=config["extra_cols"] if "extra_cols" in config else []
     tables_xpath=config["tables_xpath"]
     header_size=config["header_size"] if "header_size" in config else [0,0]
     writefile_path=os.path.join(root,config["writefile_path"])
@@ -96,7 +104,7 @@ def scrapeTable(config_file_path):
         # 行に対応するXpathで探索してイテレート
         for table in dom.xpath(tables_xpath):
             
-            df=df.append(table2df(table,header_xpath,header_size),ignore_index=True)
+            df=df.append(table2df(table,header_xpath,header_size,extra_cols),ignore_index=True)
 
     # ディレクトリを作成
     write_dir=os.path.dirname(writefile_path)
