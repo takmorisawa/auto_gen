@@ -162,6 +162,7 @@ pipelines={
 path_list=[
         "mvno/mineo/current/csv/devices_mineoD-scraped-edited.csv",
         "mvno/mineo/current/csv/devices_mineoA-scraped-edited.csv",
+        "mvno/mineo/current/csv/devices_mineoS-scraped-edited.csv",
         "mvno/uq/current/csv/devices_uq-scraped-edited.csv",
         "mvno/ymobile/current/csv/devices_ymobile-scraped-edited.csv",
         "mvno/rakuten/current/csv/devices_rakuten-scraped-edited.csv",
@@ -179,7 +180,7 @@ path_list=[
         "mvno/nifmo/current/csv/devices_nifmo-scraped-edited.csv"
         ]
 
-name_list=["mineo_d","mineo_a","uq","ymobile","rakuten","ocn","IIJmio_d","IIJmio_a","linemobile_d","linemobile_s",
+name_list=["mineo_d","mineo_a","mineo_s","uq","ymobile","rakuten","ocn","IIJmio_d","IIJmio_a","linemobile_d","linemobile_s",
            "biglobe_d","biglobe_a","qt_d","qt_a","qt_s","dmm","nifmo"]
 
 def execute_unit(tid,pipeline,results):

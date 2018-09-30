@@ -10,6 +10,7 @@ def postprocess():
     df=pd.read_csv(os.path.join(current_dir,"current/csv/devices_mineo-scraped.csv"),index_col=0)
     df_edited=pd.DataFrame()
     dfA_edited=pd.DataFrame()
+    dfS_edited=pd.DataFrame()
 
     for idx,col in df.iterrows():
     
@@ -27,8 +28,10 @@ def postprocess():
         # planの振り分け
         if col["plan"]=="ドコモプラン(Dプラン)":
             df_edited=df_edited.append(col,ignore_index=True)
-        else:
+        elif col["plan"]=="auプラン(Aプラン)":
             dfA_edited=dfA_edited.append(col,ignore_index=True)
+        else:
+            dfS_edited=dfS_edited.append(col,ignore_index=True)
     
     # カラムの並び替え
     #df_edited=df_edited.loc[:,["plan","device_type","carrier","maker","name","model","org_name","sim1","sim2","single","dual","tethering","sms","version","note"]]
@@ -37,6 +40,8 @@ def postprocess():
     df_edited.to_csv(os.path.join(current_dir,"current/csv/devices_mineoD-scraped-edited.csv"))
     dfA_edited.index.name="id"      
     dfA_edited.to_csv(os.path.join(current_dir,"current/csv/devices_mineoA-scraped-edited.csv"))
+    dfS_edited.index.name="id"      
+    dfS_edited.to_csv(os.path.join(current_dir,"current/csv/devices_mineoS-scraped-edited.csv"))
     
 if __name__ == '__main__':
 

@@ -131,4 +131,4 @@ def crowl(config_file_path):
     
 if __name__ == '__main__':
 
-    crowl("projects/support_devices/smp_spec/crowl.config")
+    crowl("projects/support_devices/mvno/mineo/crowl.config")
