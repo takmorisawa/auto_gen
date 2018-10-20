@@ -25,7 +25,11 @@
         "株式会社ピーアップ",
         "ピーアップ",
         "富士通コネクテッドテクノロジーズ",
-        "ワイモバイル"
+        "ワイモバイル",
+        "ネクス",
+        "Buffalo",
+        "富士ソフト",
+        "NETGEAR"
     ],
     "Dell": [
         "デル株式会社"
@@ -171,7 +175,8 @@
     "Google": [
         "Google(LG)",
         "Google(Motorola)",
-        "Google(HUAWEI)"
+        "Google(HUAWEI)",
+        "Google(ASUS)"
     ],
     "ASUS": [
         "ASUSTEK COMPUTER INC.",
