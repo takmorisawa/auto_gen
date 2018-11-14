@@ -1,0 +1,16 @@
+makers=[
+    "ASUSTek",
+    "Apple(アップル)",
+    "HUAWEI（ファーウェイ）",
+    "ZTE",
+    "Motorola(モトローラ)",
+    "COVIA",
+    "シャープ(SHARP)",
+    "Google",
+    "BlackBerry",
+    "京セラ",
+    "HTC",
+    "ソニー(SONY)",
+    "Sony",
+    "ソニーモバイルコミュニケーションズ"
+    ]
