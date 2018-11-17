@@ -7,9 +7,11 @@ def postprocess():
     root=os.path.dirname(os.path.abspath(__file__))
     print("processing...{0}".format(root))
     
-    df=pd.read_csv(os.path.join(root,"current/csv/devices_rakuten-scraped.csv"),index_col=0)
-    df_edited=pd.DataFrame()
-        
+    df=pd.read_csv(os.path.join(root,"tmp/csv/devices_rakuten-scraped.csv"),index_col=0)
+    dfD_edited=pd.DataFrame()
+    dfA_edited=pd.DataFrame()
+    dicPlanToDf={"ドコモ":dfD_edited,"au":dfA_edited}
+    
     carrier_list=["SIMフリー","docomo","au","SoftBank","ワイモバイル","WILLCOM","イー・モバイル","ディズニー・モバイル"]
     
     for idx,col in df.iterrows():
@@ -35,18 +37,25 @@ def postprocess():
         # カラムを追加
         col["org_id"]=idx
     
+        # plan
+        m=re.match("(.+)/(.+)",col["plan"])
+        plans=m.groups() if m else [col["plan"]]
+
         # carrierを分割
         m=re.match("(.*)／(.*)",col["carrier"])
-        if m:
-            col["carrier"]=m.groups()[0].strip()
-            df_edited=df_edited.append(col.copy(),ignore_index=True)
-            col["carrier"]=m.groups()[1].strip()
-            df_edited=df_edited.append(col.copy(),ignore_index=True)
-        else:
-            df_edited=df_edited.append(col,ignore_index=True)
+        for plan in plans:
+            if m:
+                col["carrier"]=m.groups()[0].strip()
+                dicPlanToDf[plan]=dicPlanToDf[plan].append(col.copy(),ignore_index=True)
+                col["carrier"]=m.groups()[1].strip()
+                dicPlanToDf[plan]=dicPlanToDf[plan].append(col.copy(),ignore_index=True)
+            else:
+                dicPlanToDf[plan]=dicPlanToDf[plan].append(col,ignore_index=True)
     
-    df_edited.index.name="id"
-    df_edited.to_csv(os.path.join(root,"current/csv/devices_rakuten-scraped-edited.csv"))
+    dicPlanToDf["ドコモ"].index.name="id"
+    dicPlanToDf["ドコモ"].to_csv(os.path.join(root,"tmp/csv/devices_rakutenD-scraped-edited.csv"))
+    dicPlanToDf["au"].index.name="id"
+    dicPlanToDf["au"].to_csv(os.path.join(root,"tmp/csv/devices_rakutenA-scraped-edited.csv"))
     
 
 if __name__ == '__main__':

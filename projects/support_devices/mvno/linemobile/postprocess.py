@@ -9,6 +9,7 @@ def postprocess():
     
     df=pd.read_csv(os.path.join(current_dir,"current/csv/devices_linemobile-scraped.csv"),index_col=0)
     df=df.fillna("")
+    df=df.rename(columns={"sim":"sim1"})
     dfD_edited=pd.DataFrame()
     dfS_edited=pd.DataFrame()
     
@@ -28,6 +29,10 @@ def postprocess():
         m=re.match("(.+) (.+版)",col["name"])
         col["name"]=m.groups()[0].strip() if m else col["name"]
         col["carrier"]=m.groups()[1].strip() if m else ""
+        
+        m=re.match("(.+)/(.+)",col["sim1"])
+        col["sim1"]=m.groups()[0] if m else col["sim1"]
+        col["sim2"]=m.groups()[1] if m else ""
         
         # iPhone, iPad model
         m=re.match("(i.+) (A\d{4})",col["name"])
