@@ -3,6 +3,7 @@
 
     ],
     "docomo": [
+        "ドコモ版",
         "docomoブランド端末",
         "docomo版",
         "docomo",
@@ -14,7 +15,7 @@
         "auブランド端末",
         "au",
         "au取扱端末",
-        "au(SIMロック解除済み)",   
+        "au(SIMロック解除済み)",
         "au販売"
     ],
     "ワイモバイル": [
@@ -28,6 +29,8 @@
         "SIMロックフリー版"
     ],
     "SoftBank": [
+        "ソフトバンク版",
+        "Softbank販売",
         "Softbank(SIMロック解除済み)",
         "SoftBankブランド端末",
         "SoftBank版",
@@ -35,6 +38,7 @@
         "SoftBank販売"
     ],
     "": [
+        "-",
         ""
     ],
     "BIGLOBE": [
@@ -47,6 +51,7 @@
         "mioサプライ端末"
     ],
     "Y!mobile": [
+        "ワイモバイル版",
         "Y!mobileブランド端末"
     ],
     "UQ mobile": [

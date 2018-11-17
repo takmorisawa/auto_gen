@@ -7,8 +7,8 @@
         "ALCATEL",
         "ALCATEL one touch",
         "AuBee",
-        "エイビット",    
-        "OLA",        
+        "エイビット",
+        "OLA",
         "ヤマダ電機",
         "iida",
         "TCT Mobile International Limited",
@@ -16,12 +16,12 @@
         "nextbit",
         "Nextbit Systems",
         "Unihertz",
-        "JENESIS",                
+        "JENESIS",
         "ジェネシスホールディングス",
-        "NuAns",       
+        "NuAns",
         "P-UP",
         "NTTレゾナント",
-        "X-RIDE",        
+        "X-RIDE",
         "株式会社ピーアップ",
         "ピーアップ",
         "富士通コネクテッドテクノロジーズ",
@@ -29,9 +29,40 @@
         "ネクス",
         "Buffalo",
         "富士ソフト",
-        "NETGEAR"
+        "NETGEAR",
+        "ANYYOUON",
+        "株式会社ネクス",
+        "富士ソフト株式会社",
+        "アイ・オー・データ機器",
+        "NTT東日本/NTT西日本",
+        "NTT東日本・NTT西日本",
+        "TEKWIND",
+        "futuremodel",
+        "ネットギアジャパン合同会社",
+        "サン電子",
+        "株式会社ソニー・コンピュータエンタテインメント",
+        "Kaywood-Shokai Co., Ltd.",
+        "NTT西日本",
+        "協和ハーモネット",
+        "シンセイコーポレーション",
+        "ピクセラ",
+        "I-O DATA",
+        "NTTドコモ",
+        "テックウインド",
+        "株式会社シンセイコーポレーション",
+        "フューチャーモデル株式会社",
+        "NTT東日本",
+        "株式会社ピクセラ",
+        "テックウィンド株式会社",
+        "Microsoft",
+        "Shanghai Simcom Limited",
+        "FutureModel",
+        "株式会社バッファロー",
+        "フューチャーモデル"
     ],
     "Dell": [
+        "Dell",
+        "DELL",
         "デル株式会社"
     ],
     "京セラ": [
@@ -94,6 +125,10 @@
         "HTC"
     ],
     "パナソニック": [
+        "パナソニック",
+        "パナソニックモバイルコミュニケーションズ",
+        "パナソニックシステムネットワークス",
+        "パナソニック システムネットワークス",
         "パナソニック株式会社",
         "パナソニック モバイルコミュニケーションズ",
         "Panasonic Mobile Communications",
@@ -151,7 +186,13 @@
         "FUJITSU",
         "Fujitsu"
     ],
-    "NECカシオモバイルコミュニケーションズ": [
+    "NEC": [
+        "NECパーソナルコンピュータ株式会社",
+        "日本電機",
+        "NECプラットフォームズ株式会社",
+        "日本電気",
+        "NECプラットフォームズ",
+        "NECパーソナルコンピュータ",
         "NECモバイルコミュニケーションズ",
         "NECカシオモバイルコミュニケーションズ",
         "NECモバイルコミュニケーションズ株式会社",
@@ -163,7 +204,7 @@
         "クロスリンクマーケティング株式会社"
     ],
     "Caterpillar": [
-        "CAT"  
+        "CAT"
     ],
     "Pantech": [
         "PANTECH"
@@ -173,6 +214,7 @@
         "TJC株式会社"
     ],
     "Google": [
+        "Google（ASUSTek Computer Inc.）",
         "Google(LG)",
         "Google(Motorola)",
         "Google(HUAWEI)",
@@ -209,9 +251,9 @@
     ],
     "APPLE": [
         "Apple",
-        "Apple Inc." 
+        "Apple Inc."
     ],
-    "ソニーモバイルコミュニケーションズ": [
+    "SONY": [
         "ソニーモバイルコミュニケーションズ株式会社",
         "ソニーモバイルコミュニケーションズ",
         "SONY",
