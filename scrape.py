@@ -66,4 +66,4 @@ def scrape(config_file_path):
     
 if __name__ == '__main__':
 
-    scrape("projects/support_devices/mvno/mineo/scrape.config")
+    scrape("projects/support_devices/mvno/ymobile/scrape.config")

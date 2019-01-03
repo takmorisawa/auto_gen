@@ -1,5 +1,6 @@
 {
     "その他メーカー": [
+        "TAKUMI JAPAN",
         "Essential",
         "株式会社オーラ",
         "arp",
@@ -58,7 +59,8 @@
         "Shanghai Simcom Limited",
         "FutureModel",
         "株式会社バッファロー",
-        "フューチャーモデル"
+        "フューチャーモデル",
+        "Wilo Japan"
     ],
     "Dell": [
         "Dell",
@@ -92,6 +94,7 @@
         "ONKYO"
     ],
     "MOTOROLA": [
+        "motorola Mobility",
         "Motorola Mobility",
         "Motorola",
         "MotorolaMobility"
@@ -214,6 +217,7 @@
         "TJC株式会社"
     ],
     "Google": [
+        "Google",
         "Google（ASUSTek Computer Inc.）",
         "Google(LG)",
         "Google(Motorola)",
@@ -242,6 +246,7 @@
         "FRONTIER"
     ],
     "MAYA SYSTEM": [
+        "FREETEL/MAYA SYSTEM",
         "株式会社 MAYA SYSTEM",
         "株式会社MAYA SYSTEM",
         "MAYA SYSTEM",

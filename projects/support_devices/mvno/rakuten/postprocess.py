@@ -7,7 +7,7 @@ def postprocess():
     root=os.path.dirname(os.path.abspath(__file__))
     print("processing...{0}".format(root))
     
-    df=pd.read_csv(os.path.join(root,"tmp/csv/devices_rakuten-scraped.csv"),index_col=0)
+    df=pd.read_csv(os.path.join(root,"current/csv/devices_rakuten-scraped.csv"),index_col=0)
     dfD_edited=pd.DataFrame()
     dfA_edited=pd.DataFrame()
     dicPlanToDf={"ドコモ":dfD_edited,"au":dfA_edited}
@@ -42,7 +42,7 @@ def postprocess():
         plans=m.groups() if m else [col["plan"]]
 
         # carrierを分割
-        m=re.match("(.*)／(.*)",col["carrier"])
+        m=re.match("(.*)[／/](.*)",col["carrier"])
         for plan in plans:
             if m:
                 col["carrier"]=m.groups()[0].strip()
@@ -53,9 +53,9 @@ def postprocess():
                 dicPlanToDf[plan]=dicPlanToDf[plan].append(col,ignore_index=True)
     
     dicPlanToDf["ドコモ"].index.name="id"
-    dicPlanToDf["ドコモ"].to_csv(os.path.join(root,"tmp/csv/devices_rakutenD-scraped-edited.csv"))
+    dicPlanToDf["ドコモ"].to_csv(os.path.join(root,"current/csv/devices_rakutenD-scraped-edited.csv"))
     dicPlanToDf["au"].index.name="id"
-    dicPlanToDf["au"].to_csv(os.path.join(root,"tmp/csv/devices_rakutenA-scraped-edited.csv"))
+    dicPlanToDf["au"].to_csv(os.path.join(root,"current/csv/devices_rakutenA-scraped-edited.csv"))
     
 
 if __name__ == '__main__':

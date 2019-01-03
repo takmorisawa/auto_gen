@@ -15,7 +15,8 @@ def postprocess():
         col["org_name"]=col["name"]
 
         # 余分な文字を切り取る
-        col["device_type"]=col["device_type"].split("_")[3]
+        m=re.match(".*select_(.+)_contents.*",col["device_type"])
+        col["device_type"]=m.groups()[0] if m else col["device_type"]
 
         # キャリアと備考にマッチ
         m=re.match("(.+)\t[\(（](.+)版[\)）]\t(.*)",col["name"])
