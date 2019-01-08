@@ -24,7 +24,7 @@ def genConf(config_file_path,out_file_path):
     url_list=["        \"https://mobile.line.me/support/device/search/?supplier={0}\"".format(maker) for maker in df["maker"]]
     print(url_list)
 
-    with open(out_file_path,"w") as f:
+    with open(os.path.join(root,out_file_path),"w") as f:
         f.write(str1)
         f.write(",\n".join(url_list))
         f.write(str2)
