@@ -4,13 +4,17 @@ import re
 
 def postprocess():
 
+    PLAN_NAME_DOCOMO="ドコモ"
+    PLAN_NAME_AU="au"
+    TETHERING_COLUMNS={PLAN_NAME_DOCOMO:"tethering_d",PLAN_NAME_AU:"tethering_a"}
+    
     root=os.path.dirname(os.path.abspath(__file__))
     print("processing...{0}".format(root))
     
     df=pd.read_csv(os.path.join(root,"current/csv/devices_rakuten-scraped.csv"),index_col=0)
     dfD_edited=pd.DataFrame()
     dfA_edited=pd.DataFrame()
-    dicPlanToDf={"ドコモ":dfD_edited,"au":dfA_edited}
+    dicPlanToDf={PLAN_NAME_DOCOMO:dfD_edited,PLAN_NAME_AU:dfA_edited}
     
     carrier_list=["SIMフリー","docomo","au","SoftBank","ワイモバイル","WILLCOM","イー・モバイル","ディズニー・モバイル"]
     
@@ -52,10 +56,17 @@ def postprocess():
             else:
                 dicPlanToDf[plan]=dicPlanToDf[plan].append(col,ignore_index=True)
     
-    dicPlanToDf["ドコモ"].index.name="id"
-    dicPlanToDf["ドコモ"].to_csv(os.path.join(root,"current/csv/devices_rakutenD-scraped-edited.csv"))
-    dicPlanToDf["au"].index.name="id"
-    dicPlanToDf["au"].to_csv(os.path.join(root,"current/csv/devices_rakutenA-scraped-edited.csv"))
+    for plan in [PLAN_NAME_DOCOMO,PLAN_NAME_AU]:
+        dicPlanToDf[plan].index.name="id"
+        # tetheringの編集
+        tether_rename=[tether[1] for tether in TETHERING_COLUMNS.items() if tether[0]==plan][0]
+        tether_drop=[tether[1] for tether in TETHERING_COLUMNS.items() if tether[0]!=plan][0]
+        dicPlanToDf[plan]=dicPlanToDf[plan].rename(columns={tether_rename:"tethering"})
+        dicPlanToDf[plan]=dicPlanToDf[plan].drop(tether_drop,axis=1)
+
+    # ファイル保存    
+    dicPlanToDf[PLAN_NAME_DOCOMO].to_csv(os.path.join(root,"current/csv/devices_rakutenD-scraped-edited.csv"))
+    dicPlanToDf[PLAN_NAME_AU].to_csv(os.path.join(root,"current/csv/devices_rakutenA-scraped-edited.csv"))
     
 
 if __name__ == '__main__':
