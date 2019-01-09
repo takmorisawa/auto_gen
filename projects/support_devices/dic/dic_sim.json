@@ -5,6 +5,7 @@
     ],
     "micro": [
         "マイクロ",
+        "iPad第4世代以前用 microSIM",
         "microSIM（nano-SIMアダプター同梱）",
         "microSIM",
         "マイクロSIM",
@@ -14,6 +15,9 @@
     ],
     "nano": [
         "ナノ",
+        "iPhone7以前用 nanoSIM",
+        "iPad第5世代以前用 nanoSIM",
+        "au VoLTE対応SIM（nanoサイズ）",
         "nanoSIM",
         "nano",
         "マルチSIM(nano)",
@@ -22,6 +26,7 @@
     ],
     "au VoLTE(micro)": [
         "au VoLTE(micro)",
+        "au VoLTE対応SIM（microサイズ）",
         "VoLTE SIM （micro）"
     ],
     "au VoLTE（nano）": [
