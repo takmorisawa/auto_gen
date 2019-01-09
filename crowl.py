@@ -51,14 +51,13 @@ def request(url,render_js,morebutton_xpath=""):
                 button=get_button()
                 #wait=WebDriverWait(driver,5)
                 #button=wait.until(EC.element_to_be_clickable((By.XPATH,morebutton_xpath)))
-                
+        
+        sleep(1) # ボタンを押してからロード時間の待機が必要
         html = driver.page_source
         driver.save_screenshot("page.png") # print screen
     else:
         # 不具合の可能性あり
         html=urlopen(url).read()
-    
-    sleep(1)
     
     return html
 
@@ -80,6 +79,7 @@ def crowl(config_file_path):
     render_js=config["render_js"] if "render_js" in config else 1
     morebutton_xpath=config["morebutton_xpath"] if "morebutton_xpath" in config else None
     nextscript_xpath=config["nextscript_xpath"] if "nextscript_xpath" in config else None
+    nextbutton_xpath=config["nextbutton_xpath"] if "nextbutton_xpath" in config else None
 
     if os.path.exists(save_dir):
         shutil.rmtree(save_dir)
@@ -92,7 +92,6 @@ def crowl(config_file_path):
         pass
 
     for url in starting_urls:
-        
         while url!=ending_url:
             
             print("crowling...{0}".format(url))
@@ -100,7 +99,7 @@ def crowl(config_file_path):
             html=request(url,render_js,morebutton_xpath)
             dom=lxml.html.fromstring(html)
             
-            if target_xpath=="":    
+            if target_xpath=="":
                 path=os.path.join(root,"{0}/{1}.html".format(save_dir,uuid.uuid1()))
                 with open(path,"w") as f:
                     f.write(html) # ファイル出力
@@ -121,7 +120,16 @@ def crowl(config_file_path):
                 if len(next_script)!=0:
                     driver.execute_script(next_script[0])
                     url="_nextpage_"
-            
+ 
+            # ページ切り替えボタンをクリック（mineo専用）
+            endflag=dom.xpath("//li[@class='num_2']/a[@class='on']")
+            if nextbutton_xpath:
+                button=driver.find_element_by_xpath(nextbutton_xpath)
+                if len(endflag)==0:
+                    button.click()
+                    url="_nextpage_"
+                    print(dom.xpath("//li[@class='num_2']/a/@href"))
+                    
             # 次のページへのURLを取得
             if nextpage_xpath!="":
                 nextpage=dom.xpath(nextpage_xpath)
