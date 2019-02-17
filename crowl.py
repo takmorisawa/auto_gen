@@ -10,6 +10,7 @@ import shutil
 import datetime
 
 from selenium.webdriver import Chrome, ChromeOptions
+from selenium.webdriver.support.ui import Select
 #from selenium.webdriver.support import expected_conditions as EC
 #from selenium.webdriver.support.ui import WebDriverWait
 #from selenium.webdriver.common.by import By
@@ -27,116 +28,211 @@ morebutton_xpath
 nextscript_xpath
 """
 
-options = ChromeOptions()            
-options.add_argument('--headless')
-driver = Chrome(options=options)
-driver.set_window_size(2560,1600)
+class HtmlGrabber:
 
-def request(url,render_js,morebutton_xpath=""):
-    
-    html=""
-    if render_js:
-        
-        if url!="_nextpage_":
-            driver.get(url)
+    def __init__(self,root):
+
+        options = ChromeOptions()
+        options.add_argument('--headless')
+        self._driver = Chrome(options=options)
+        self._driver.set_window_size(2560,1600)
+
+        self._root_dir=root
+        self._html=""
+        self._dom=None
+
+        self._sibling_func_map={
+            1:self.__to_sibling_by_script,
+            2:self.__to_sibling_by_button,
+            3:self.__to_sibling_by_url
+        }
+        self._child_func_map={
+            1:self.__to_child_by_url,
+            2:self.__to_child_by_select
+        }
+
+    def __check_state(self,config,state):
+
+        url=state["url"]
+        # optional
+        morebutton_xpath=config[0]["morebutton_xpath"] if "morebutton_xpath" in config[0] else ""
+
+        # ページリクエスト
+        if self._driver.current_url!=url:
+            self._driver.get(url)
 
         # 「さらに表示」ボタンをクリック
-        if morebutton_xpath:
-            get_button=lambda:driver.find_element_by_xpath(morebutton_xpath)
-            button=get_button()
-            while button.is_displayed():
-                print("morebutton:", button.text)
-                button.click()
-                driver.execute_script('scroll(0,document.body.scrollHeight)')
-                button=get_button()
-                #wait=WebDriverWait(driver,5)
-                #button=wait.until(EC.element_to_be_clickable((By.XPATH,morebutton_xpath)))
-        
+        while morebutton_xpath and self.__click_button(morebutton_xpath):
+            # ページを下までスクロール
+            self._driver.execute_script('scroll(0,document.body.scrollHeight)')
+
+        self.__update()
+
+    def __update(self):
         sleep(1) # ボタンを押してからロード時間の待機が必要
-        html = driver.page_source
-        driver.save_screenshot("page.png") # print screen
-    else:
-        # 不具合の可能性あり
-        html=urlopen(url).read()
-    
-    return html
+        self._html = self._driver.page_source
+        self._driver.save_screenshot("page.png") # print screen
+        self._dom=lxml.html.fromstring(self._html)
+
+    # ボタンをクリックしてページを追加ロード
+    def __click_button(self,button_xpath):
+
+        button=self._driver.find_element_by_xpath(button_xpath)
+        if button.is_displayed():
+            button.click()
+            self.__update()
+            return True
+        else:
+            return False
 
 
-def crowl(config_file_path):
+    # Javascripを実行して次のページに遷移
+    def __to_sibling_by_script(self,config,state):
 
-    # 設定ファイルに記述するパスは、このプログラムが置かれているディレクトリを基準とする
-    root=os.path.dirname(os.path.abspath(__file__))
-    
-    config={}
-    with open(config_file_path,"r") as f:
+        script_xpath=config[0]["sibling_xpath_list"][0]
+        url=state["url"]
+        page_count=state["page_count"]
+
+        script=self._dom.xpath(script_xpath)
+        if len(script)!=0:
+            self._driver.execute_script(script[0])
+            self.__update()
+            self.process(config,{
+                "url":url,
+                "page_count":page_count+1
+            })
+
+    # ボタンをクリックして次のページに遷移
+    def __to_sibling_by_button(self,config,state):
+
+        button_xpath=config[0]["sibling_xpath_list"][0]
+        counter_xpath=config[0]["sibling_xpath_list"][1]
+        url=state["url"]
+        page_count=state["page_count"]
+
+        button=self._driver.find_element_by_xpath(button_xpath)
+        if button.is_displayed():
+            button.click()
+            self.__update()
+
+            counter=int(self._dom.xpath(counter_xpath))
+            if counter!=page_count:
+                self.process(config,{
+                    "url":url,
+                    "page_count":counter
+                })
+
+    # 次のページへのURLを取得
+    def __to_sibling_by_url(self,config,state):
+
+        nextpage_xpath=config[0]["sibling_xpath_list"][0]
+        ending_url=config[0]["sibling_xpath_list"][1]
+        url=state["url"]
+        page_count=state["page_count"]
+
+        nextpage=self._dom.xpath(nextpage_xpath)
+        if len(nextpage)!=0:
+            # 未テスト
+            url=urljoin(self._driver.current_url(),nextpage[0])
+            if url==ending_url:
+                self.process(config,{
+                    "url":url,
+                    "page_count":page_count+1
+                })
+
+
+    def __to_child_by_url(self,config,state):
+
+        url_list_xpath=config[0]["child_xpath_list"][0]
+
+        url_list=self._dom.xpath(url_list_xpath)
+        for child_url in url_list:
+            # 再帰処理
+            self.process(config[1:],{
+                "url":child_url,
+                "page_count":1
+            })
+
+    def __to_child_by_select(self,config,state):
+
+        url=state["url"]
+        options_xpath=config[0]["child_xpath_list"][0]
+        select_xpath=config[0]["child_xpath_list"][1]
+
+        options=self._dom.xpath(options_xpath)
+        for option in options:
+            print("select:",option)
+            elm=self._driver.find_element_by_xpath(select_xpath)
+            Select(elm).select_by_value(option)
+            self.process(config[1:],{
+                "url":url,
+                "page_count":1
+            })
+
+
+    def __write(self,dir):
+        path=os.path.join(dir,"{0}.html".format(uuid.uuid1()))
+        self._html=self._driver.page_source
+        with open(path,"w") as f:
+            f.write(self._html) # ファイル出力
+
+    def process(self,config,state):
+
+        # ページ情報読み込み
+        url=state["url"] if "url" in state else ""
+        page_count=state["page_count"] if "page_count" in state else -1
+
+        # 設定データ読み込み
+        child_type=config[0]["child_type"] if "child_type" in config[0] else -1
+        sibling_type=config[0]["sibling_type"] if "sibling_type" in config[0] else -1
+        save_dir=os.path.join(self._root_dir,config[0]["save_dir"]) if "save_dir" in config[0] else None
+
+        print("crowling...\n\t{0},{1},\n\t{2}".format(url,page_count,save_dir))
+
+        self.__check_state(config,state)
+
+        # 子ページの処理
+        if child_type in self._child_func_map:
+            self._child_func_map[child_type](config,state)
+
+        # HTMLファイル書き出し
+        if save_dir:
+            self.__write(save_dir)
+
+        #次のページに遷移
+        if sibling_type in self._sibling_func_map:
+            self._sibling_func_map[sibling_type](config,state)
+
+
+def crowl(root,config_file_path):
+
+    config=[]
+    with open(os.path.join(root,config_file_path),"r") as f:
         config=json.load(f)
-        
-    starting_urls=config["starting_urls"]
-    ending_url=config["ending_url"]
-    target_xpath=config["target_xpath"]
-    nextpage_xpath=config["nextpage_xpath"]
-    save_dir=os.path.join(root,config["save_dir"])
-    render_js=config["render_js"] if "render_js" in config else 1
-    morebutton_xpath=config["morebutton_xpath"] if "morebutton_xpath" in config else None
-    nextscript_xpath=config["nextscript_xpath"] if "nextscript_xpath" in config else None
-    nextbutton_xpath=config["nextbutton_xpath"] if "nextbutton_xpath" in config else None
+
+    starting_urls=config[0]["starting_urls"]
+    save_dir=os.path.join(root,config[0]["save_dir"])
 
     if os.path.exists(save_dir):
         shutil.rmtree(save_dir)
     #os.rmdir(save_dir)
     os.mkdir(save_dir)
-    
+
     # タイムスタンプを残す
     path=os.path.join(root,"{0}/{1}".format(save_dir,datetime.date.today().strftime("%Y%m%d")))
     with open(path,"w") as f:
         pass
 
     for url in starting_urls:
-        while url!=ending_url:
-            
-            print("crowling...{0}".format(url))
-            
-            html=request(url,render_js,morebutton_xpath)
-            dom=lxml.html.fromstring(html)
-            
-            if target_xpath=="":
-                path=os.path.join(root,"{0}/{1}.html".format(save_dir,uuid.uuid1()))
-                with open(path,"w") as f:
-                    f.write(html) # ファイル出力
-            else:
-                # 1ページにダウンロードするURLが複数ある場合
-                for target in dom.xpath(target_xpath):
-                    url=urljoin(starting_urls[0],target)
-                    html=request(url,render_js)
-                    path=os.path.join(root,"{0}/{1}.html".format(save_dir,uuid.uuid1()))
-                    with open(path,"w") as f:
-                        f.write(html) # ファイル出力
-            
-            url="" # urlが空白の場合はループを抜ける
-            
-            # 次のページへのボタンをクリック
-            if nextscript_xpath:
-                next_script=dom.xpath(nextscript_xpath)
-                if len(next_script)!=0:
-                    driver.execute_script(next_script[0])
-                    url="_nextpage_"
- 
-            # ページ切り替えボタンをクリック（mineo専用）
-            endflag=dom.xpath("//li[@class='num_2']/a[@class='on']")
-            if nextbutton_xpath:
-                button=driver.find_element_by_xpath(nextbutton_xpath)
-                if len(endflag)==0:
-                    button.click()
-                    url="_nextpage_"
-                    print(dom.xpath("//li[@class='num_2']/a/@href"))
-                    
-            # 次のページへのURLを取得
-            if nextpage_xpath!="":
-                nextpage=dom.xpath(nextpage_xpath)
-                if len(nextpage)!=0:
-                    url=urljoin(starting_urls[0],nextpage[0])
 
-    
+        # グラバを作成
+        grabber=HtmlGrabber(root)
+        grabber.process(config[1:],{
+            "url":url,
+            "page_count":None
+        })
+
+
 if __name__ == '__main__':
 
-    crowl("projects/support_devices/mvno/mineo/crowl.config")
+    crowl("/Users/tkyk/Documents/repo/supported_devices","mvno/mineo/crowl.config")
