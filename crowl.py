@@ -1,6 +1,9 @@
 from urllib.request import urlopen
 from urllib.parse import urljoin
 
+import logging.config
+import logging.handlers
+
 import json
 import lxml.html
 from time import sleep
@@ -15,29 +18,17 @@ from selenium.webdriver.support.ui import Select
 #from selenium.webdriver.support.ui import WebDriverWait
 #from selenium.webdriver.common.by import By
 
-"""
-config
-
-starting_urls
-ending_url
-target_xpath
-nextpage_xpath
-save_dir
-render_js
-morebutton_xpath
-nextscript_xpath
-"""
-
 class HtmlGrabber:
 
-    def __init__(self,root):
+    def __init__(self,work_dir,is_headless=True):
 
         options = ChromeOptions()
-        options.add_argument('--headless')
+        if is_headless:
+            options.add_argument('--headless')
         self._driver = Chrome(options=options)
-        self._driver.set_window_size(2560,1600)
+        self._driver.set_window_size(1600,2560)
 
-        self._root_dir=root
+        self._work_dir=work_dir
         self._html=""
         self._dom=None
 
@@ -55,23 +46,27 @@ class HtmlGrabber:
 
         url=state["url"]
         # optional
-        morebutton_xpath=config[0]["morebutton_xpath"] if "morebutton_xpath" in config[0] else ""
+        morebutton_xpath=config[0]["morebutton_xpath"] if "morebutton_xpath" in config[0] else None
 
         # ページリクエスト
         if self._driver.current_url!=url:
             self._driver.get(url)
+            self.__update()
 
         # 「さらに表示」ボタンをクリック
-        while morebutton_xpath and self.__click_button(morebutton_xpath):
+        while morebutton_xpath:
+            print("extend page")
             # ページを下までスクロール
             self._driver.execute_script('scroll(0,document.body.scrollHeight)')
-
-        self.__update()
+            # 少し戻ろないとボタンが有効にならない
+            self._driver.execute_script('scroll(0,-1600)')
+            if self.__click_button(morebutton_xpath)==False:
+                break
 
     def __update(self):
         sleep(1) # ボタンを押してからロード時間の待機が必要
         self._html = self._driver.page_source
-        self._driver.save_screenshot("page.png") # print screen
+        #self._driver.save_screenshot("page.png") # print screen
         self._dom=lxml.html.fromstring(self._html)
 
     # ボタンをクリックしてページを追加ロード
@@ -85,12 +80,19 @@ class HtmlGrabber:
         else:
             return False
 
+    def __write(self):
+        path=os.path.join(self._work_dir,"{0}.html".format(uuid.uuid1()))
+        self._html=self._driver.page_source
+        with open(path,"w") as f:
+            f.write(self._html) # ファイル出力
+
+        # スクリーンキャプチャ
+        #self._driver.save_screenshot(os.path.join(self._work_dir,"{0}.png".format(url)))
 
     # Javascripを実行して次のページに遷移
     def __to_sibling_by_script(self,config,state):
 
         script_xpath=config[0]["sibling_xpath_list"][0]
-        url=state["url"]
         page_count=state["page_count"]
 
         script=self._dom.xpath(script_xpath)
@@ -98,7 +100,7 @@ class HtmlGrabber:
             self._driver.execute_script(script[0])
             self.__update()
             self.process(config,{
-                "url":url,
+                "url":self._driver.current_url,
                 "page_count":page_count+1
             })
 
@@ -107,7 +109,6 @@ class HtmlGrabber:
 
         button_xpath=config[0]["sibling_xpath_list"][0]
         counter_xpath=config[0]["sibling_xpath_list"][1]
-        url=state["url"]
         page_count=state["page_count"]
 
         button=self._driver.find_element_by_xpath(button_xpath)
@@ -118,23 +119,25 @@ class HtmlGrabber:
             counter=int(self._dom.xpath(counter_xpath))
             if counter!=page_count:
                 self.process(config,{
-                    "url":url,
+                    "url":self._driver.current_url,
                     "page_count":counter
                 })
 
     # 次のページへのURLを取得
     def __to_sibling_by_url(self,config,state):
 
-        nextpage_xpath=config[0]["sibling_xpath_list"][0]
-        ending_url=config[0]["sibling_xpath_list"][1]
+        sibling_xpath_list=config[0]["sibling_xpath_list"]
+        nextpage_xpath=sibling_xpath_list[0]
         url=state["url"]
         page_count=state["page_count"]
+        # optional
+        ending_url=sibling_xpath_list[1] if len(sibling_xpath_list)>2 else None
 
         nextpage=self._dom.xpath(nextpage_xpath)
-        if len(nextpage)!=0:
+        if len(nextpage)>0:
             # 未テスト
-            url=urljoin(self._driver.current_url(),nextpage[0])
-            if url==ending_url:
+            url=urljoin(self._driver.current_url,nextpage[0])
+            if url!=ending_url:
                 self.process(config,{
                     "url":url,
                     "page_count":page_count+1
@@ -155,28 +158,37 @@ class HtmlGrabber:
 
     def __to_child_by_select(self,config,state):
 
-        url=state["url"]
-        options_xpath=config[0]["child_xpath_list"][0]
-        select_xpath=config[0]["child_xpath_list"][1]
+        child_xpath_list=config[0]["child_xpath_list"]
+        options_xpath=child_xpath_list[0]
+        select_xpath=child_xpath_list[1]
+        #optional
+        search_xpath=child_xpath_list[2] if len(child_xpath_list)>2 else None
 
         options=self._dom.xpath(options_xpath)
         for option in options:
             print("select:",option)
+
+            # 親ページの状態を復元
+            self.__check_state(config,state)
+
             elm=self._driver.find_element_by_xpath(select_xpath)
             Select(elm).select_by_value(option)
+            self.__update()
+
+            # 検索ボタンをクリック
+            if search_xpath:
+                self._driver.find_element_by_xpath(search_xpath).click()
+                self.__update()
+
             self.process(config[1:],{
-                "url":url,
+                "url":self._driver.current_url,
                 "page_count":1
             })
 
 
-    def __write(self,dir):
-        path=os.path.join(dir,"{0}.html".format(uuid.uuid1()))
-        self._html=self._driver.page_source
-        with open(path,"w") as f:
-            f.write(self._html) # ファイル出力
-
     def process(self,config,state):
+
+        logger = logging.getLogger()
 
         # ページ情報読み込み
         url=state["url"] if "url" in state else ""
@@ -185,9 +197,10 @@ class HtmlGrabber:
         # 設定データ読み込み
         child_type=config[0]["child_type"] if "child_type" in config[0] else -1
         sibling_type=config[0]["sibling_type"] if "sibling_type" in config[0] else -1
-        save_dir=os.path.join(self._root_dir,config[0]["save_dir"]) if "save_dir" in config[0] else None
+        writing=config[0]["writing"] if "writing" in config[0] else False
 
-        print("crowling...\n\t{0},{1},\n\t{2}".format(url,page_count,save_dir))
+        print("crowling...{0},{1},{2}".format(url,page_count,writing))
+        logger.info("crowling...{0},{1},{2}".format(url,page_count,writing))
 
         self.__check_state(config,state)
 
@@ -196,8 +209,8 @@ class HtmlGrabber:
             self._child_func_map[child_type](config,state)
 
         # HTMLファイル書き出し
-        if save_dir:
-            self.__write(save_dir)
+        if writing:
+            self.__write()
 
         #次のページに遷移
         if sibling_type in self._sibling_func_map:
@@ -206,30 +219,33 @@ class HtmlGrabber:
 
 def crowl(root,config_file_path):
 
+    # ログ設定ファイルからログ設定を読み込み
+    logging.config.fileConfig(os.path.join(root,"logging.conf"))
+
     config=[]
     with open(os.path.join(root,config_file_path),"r") as f:
         config=json.load(f)
 
     starting_urls=config[0]["starting_urls"]
-    save_dir=os.path.join(root,config[0]["save_dir"])
+    work_dir=os.path.join(root,config[0]["save_dir"])
 
-    if os.path.exists(save_dir):
-        shutil.rmtree(save_dir)
-    #os.rmdir(save_dir)
-    os.mkdir(save_dir)
+    if os.path.exists(work_dir):
+        shutil.rmtree(work_dir)
+    #os.rmdir(work_dir)
+    os.mkdir(work_dir)
 
     # タイムスタンプを残す
-    path=os.path.join(root,"{0}/{1}".format(save_dir,datetime.date.today().strftime("%Y%m%d")))
+    path=os.path.join(work_dir,datetime.date.today().strftime("%Y%m%d"))
     with open(path,"w") as f:
         pass
 
     for url in starting_urls:
 
         # グラバを作成
-        grabber=HtmlGrabber(root)
+        grabber=HtmlGrabber(work_dir)
         grabber.process(config[1:],{
             "url":url,
-            "page_count":None
+            "page_count":1
         })
 
 

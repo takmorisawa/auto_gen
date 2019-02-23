@@ -3,16 +3,16 @@ import json
 import lxml.html
 import os
 
-def scrape(config_file_path):
+def scrape(root,config_file_path):
 
     # 設定ファイルに記述するパスは、このプログラムが置かれているディレクトリを基準とする
-    root=os.path.dirname(os.path.abspath(__file__))
+    #root=os.path.dirname(os.path.abspath(__file__))
     
     increment_no=0
     
     # 設定ファイルを読み込む
     config={}
-    with open(config_file_path,"r") as f:
+    with open(os.path.join(root,config_file_path),"r") as f:
         config=json.load(f)
     
     html_files=os.path.join(root,config["html_files"])
@@ -66,4 +66,4 @@ def scrape(config_file_path):
     
 if __name__ == '__main__':
 
-    scrape("projects/support_devices/mvno/ymobile/scrape.config")
+    scrape("/Users/tkyk/Documents/repo/supported_devices","/Users/tkyk/Documents/repo/supported_devices/mvno/nifmo/scrape.config")
