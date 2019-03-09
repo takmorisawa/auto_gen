@@ -56,7 +56,7 @@ def table_to_df(table,header_xpath,extra_cols):
 
     # ヘッダ行を検索
     htrs=table.xpath(header_xpath) # ヘッダ行
-    tmp_header=make_table(htrs)
+    tmp_header=rows_to_array(htrs)
     # ヘッダを１行に連結
     header=["_".join(item) for item in tmp_header.transpose()]
 
