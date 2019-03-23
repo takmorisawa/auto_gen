@@ -42,6 +42,7 @@ class HtmlGrabber:
             2:self.__to_child_by_select
         }
 
+    # 現在の状態を検証して必要があれば状態を修正する
     def __check_state(self,config,state):
 
         url=state["url"]
@@ -51,7 +52,7 @@ class HtmlGrabber:
         # ページリクエスト
         if self._driver.current_url!=url:
             self._driver.get(url)
-            self.__update()
+            self.update()
 
         # 「さらに表示」ボタンをクリック
         while morebutton_xpath:
@@ -63,11 +64,19 @@ class HtmlGrabber:
             if self.__click_button(morebutton_xpath)==False:
                 break
 
-    def __update(self):
+    # 状態を更新する
+    def update(self):
         sleep(1) # ボタンを押してからロード時間の待機が必要
         self._html = self._driver.page_source
         #self._driver.save_screenshot("page.png") # print screen
         self._dom=lxml.html.fromstring(self._html)
+
+    def xpath(self,path):
+        return self._dom.xpath(path)
+
+    def get(self,url):
+        self._driver.get(url)
+
 
     # ボタンをクリックしてページを追加ロード
     def __click_button(self,button_xpath):
@@ -75,7 +84,7 @@ class HtmlGrabber:
         button=self._driver.find_element_by_xpath(button_xpath)
         if button.is_displayed():
             button.click()
-            self.__update()
+            self.update()
             return True
         else:
             return False
@@ -86,8 +95,6 @@ class HtmlGrabber:
         with open(path,"w") as f:
             f.write(self._html) # ファイル出力
 
-        # スクリーンキャプチャ
-        #self._driver.save_screenshot(os.path.join(self._work_dir,"{0}.png".format(url)))
 
     # Javascripを実行して次のページに遷移
     def __to_sibling_by_script(self,config,state):
@@ -98,7 +105,7 @@ class HtmlGrabber:
         script=self._dom.xpath(script_xpath)
         if len(script)!=0:
             self._driver.execute_script(script[0])
-            self.__update()
+            self.update()
             self.process(config,{
                 "url":self._driver.current_url,
                 "page_count":page_count+1
@@ -114,7 +121,7 @@ class HtmlGrabber:
         button=self._driver.find_element_by_xpath(button_xpath)
         if button.is_displayed():
             button.click()
-            self.__update()
+            self.update()
 
             counter=int(self._dom.xpath(counter_xpath))
             if counter!=page_count:
@@ -168,22 +175,21 @@ class HtmlGrabber:
         for option in options:
             print("select:",option)
 
-            # 親ページの状態を復元
-            self.__check_state(config,state)
-
             elm=self._driver.find_element_by_xpath(select_xpath)
             Select(elm).select_by_value(option)
-            self.__update()
+            self.update()
 
             # 検索ボタンをクリック
             if search_xpath:
                 self._driver.find_element_by_xpath(search_xpath).click()
-                self.__update()
+                self.update()
 
             self.process(config[1:],{
                 "url":self._driver.current_url,
                 "page_count":1
             })
+            # 親ページの状態を復元
+            self.__check_state(config,state)
 
 
     def process(self,config,state):
@@ -207,6 +213,9 @@ class HtmlGrabber:
         # 子ページの処理
         if child_type in self._child_func_map:
             self._child_func_map[child_type](config,state)
+
+        # 子ページから復帰後に元のページに戻る
+        self.__check_state(config,state)
 
         # HTMLファイル書き出し
         if writing:
@@ -251,4 +260,4 @@ def crowl(root,config_file_path):
 
 if __name__ == '__main__':
 
-    crowl("/Users/tkyk/Documents/repo/supported_devices","mvno/mineo/crowl.config")
+    crowl("/Users/tkyk/Documents/repo/wifi_spec","service/uq/crowl.config")
