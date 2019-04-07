@@ -14,6 +14,7 @@ import datetime
 
 from selenium.webdriver import Chrome, ChromeOptions
 from selenium.webdriver.support.ui import Select
+from selenium.webdriver.common.keys import Keys
 #from selenium.webdriver.support import expected_conditions as EC
 #from selenium.webdriver.support.ui import WebDriverWait
 #from selenium.webdriver.common.by import By
@@ -39,7 +40,8 @@ class HtmlGrabber:
         }
         self._child_func_map={
             1:self.__to_child_by_url,
-            2:self.__to_child_by_select
+            2:self.__to_child_by_select,
+            3:self.__to_child_by_search
         }
 
     def __check_state(self,config,state):
@@ -151,6 +153,7 @@ class HtmlGrabber:
         url_list=self._dom.xpath(url_list_xpath)
         for child_url in url_list:
             # 再帰処理
+            child_url=urljoin(self._driver.current_url,child_url)
             self.process(config[1:],{
                 "url":child_url,
                 "page_count":1
@@ -180,6 +183,26 @@ class HtmlGrabber:
                 self._driver.find_element_by_xpath(search_xpath).click()
                 self.__update()
 
+            self.process(config[1:],{
+                "url":self._driver.current_url,
+                "page_count":1
+            })
+
+    def __to_child_by_search(self,config,state):
+
+        word_list=config[0]["child_xpath_list"][0]
+        input_xpath=config[0]["child_xpath_list"][1]
+        submit_xpath=config[0]["child_xpath_list"][2]
+
+        for word in word_list:
+            input_elm=self._driver.find_element_by_xpath(input_xpath)
+            submit_elm=self._driver.find_element_by_xpath(submit_xpath)
+            
+            input_elm.clear()
+            input_elm.send_keys(word)
+            submit_elm.click()
+            
+            self.__update()
             self.process(config[1:],{
                 "url":self._driver.current_url,
                 "page_count":1
@@ -242,7 +265,7 @@ def crowl(root,config_file_path):
     for url in starting_urls:
 
         # グラバを作成
-        grabber=HtmlGrabber(work_dir)
+        grabber=HtmlGrabber(work_dir,False)
         grabber.process(config[1:],{
             "url":url,
             "page_count":1
@@ -251,4 +274,4 @@ def crowl(root,config_file_path):
 
 if __name__ == '__main__':
 
-    crowl("/Users/tkyk/Documents/repo/supported_devices","mvno/mineo/crowl.config")
+    crowl("/Users/tkyk/Documents/repo/test","crowl.config")
