@@ -29,7 +29,6 @@ class HtmlGrabber:
         self._driver.set_window_size(1600,2560)
 
         self._work_dir=work_dir
-        self._html=""
         self._dom=None
 
         self._sibling_func_map={
@@ -41,6 +40,9 @@ class HtmlGrabber:
             1:self.__to_child_by_url,
             2:self.__to_child_by_select
         }
+
+    def dispose(self):
+        self._driver.quit()
 
     # 現在の状態を検証して必要があれば状態を修正する
     def __check_state(self,config,state):
@@ -67,15 +69,16 @@ class HtmlGrabber:
     # 状態を更新する
     def update(self):
         sleep(1) # ボタンを押してからロード時間の待機が必要
-        self._html = self._driver.page_source
+        html = self._driver.page_source
         #self._driver.save_screenshot("page.png") # print screen
-        self._dom=lxml.html.fromstring(self._html)
+        self._dom=lxml.html.fromstring(html)
 
     def xpath(self,path):
         return self._dom.xpath(path)
 
     def get(self,url):
         self._driver.get(url)
+        self.update()
 
 
     # ボタンをクリックしてページを追加ロード
@@ -91,9 +94,9 @@ class HtmlGrabber:
 
     def __write(self):
         path=os.path.join(self._work_dir,"{0}.html".format(uuid.uuid1()))
-        self._html=self._driver.page_source
+        html=self._driver.page_source
         with open(path,"w") as f:
-            f.write(self._html) # ファイル出力
+            f.write(html) # ファイル出力
 
 
     # Javascripを実行して次のページに遷移
@@ -229,7 +232,7 @@ class HtmlGrabber:
 def crowl(root,config_file_path):
 
     # ログ設定ファイルからログ設定を読み込み
-    logging.config.fileConfig(os.path.join(root,"logging.conf"))
+    logging.config.fileConfig(os.path.join(root,"auto_gen/logging.conf"))
 
     config=[]
     with open(os.path.join(root,config_file_path),"r") as f:
@@ -256,6 +259,7 @@ def crowl(root,config_file_path):
             "url":url,
             "page_count":1
         })
+        grabber.dispose()
 
 
 if __name__ == '__main__':
