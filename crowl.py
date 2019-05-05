@@ -160,6 +160,7 @@ class HtmlGrabber:
 
         url_list=self._dom.xpath(url_list_xpath)
         for child_url in url_list:
+            child_url=urljoin(self._driver.current_url,child_url)
             # 再帰処理
             self.process(config[1:],{
                 "url":child_url,
