@@ -45,6 +45,7 @@ def scrape(root,config_file_path):
 
     # 指定ディレクトリからHTMLファイルを取得する
     files = os.listdir(html_files)
+    files.sort()
     for file in [_ for _ in files if os.path.splitext(_)[1]==".html"]:
 
         path=html_files+"/"+file

@@ -30,6 +30,7 @@ class HtmlGrabber:
 
         self._work_dir=work_dir
         self._dom=None
+        self._file_index=0
 
         self._sibling_func_map={
             1:self.__to_sibling_by_script,
@@ -38,7 +39,8 @@ class HtmlGrabber:
         }
         self._child_func_map={
             1:self.__to_child_by_url,
-            2:self.__to_child_by_select
+            2:self.__to_child_by_select,
+            3:self.__to_child_by_button
         }
 
     def dispose(self):
@@ -93,7 +95,9 @@ class HtmlGrabber:
             return False
 
     def __write(self):
-        path=os.path.join(self._work_dir,"{0}.html".format(uuid.uuid1()))
+        #path=os.path.join(self._work_dir,"{0}.html".format(uuid.uuid1()))
+        path=os.path.join(self._work_dir,"{0:04}.html".format(self._file_index))
+        self._file_index+=1
         html=self._driver.page_source
         with open(path,"w") as f:
             f.write(html) # ファイル出力
@@ -194,6 +198,20 @@ class HtmlGrabber:
             })
             # 親ページの状態を復元
             self.__check_state(config,state)
+
+    def __to_child_by_button(self,config,state):
+
+        button_xpath=config[0]["child_xpath_list"][0]
+
+        button=self._driver.find_element_by_xpath(button_xpath)
+        if button.is_displayed():
+            button.click()
+            self.update()
+
+            self.process(config[1:],{
+                "url":self._driver.current_url,
+                "page_count":1
+            })
 
 
     def process(self,config,state):
