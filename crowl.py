@@ -18,9 +18,14 @@ from selenium.webdriver.support.ui import Select
 #from selenium.webdriver.support.ui import WebDriverWait
 #from selenium.webdriver.common.by import By
 
+class GlobalState:
+
+    def __init__(self):
+        self._file_index=0
+
 class HtmlGrabber:
 
-    def __init__(self,work_dir,is_headless=True):
+    def __init__(self,work_dir,global_state,is_headless=True):
 
         options = ChromeOptions()
         if is_headless:
@@ -30,7 +35,8 @@ class HtmlGrabber:
 
         self._work_dir=work_dir
         self._dom=None
-        self._file_index=0
+        self._global_state=global_state
+        self._interval=1
 
         self._sibling_func_map={
             1:self.__to_sibling_by_script,
@@ -70,7 +76,7 @@ class HtmlGrabber:
 
     # 状態を更新する
     def update(self):
-        sleep(1) # ボタンを押してからロード時間の待機が必要
+        sleep(self._interval) # ボタンを押してからロード時間の待機が必要
         html = self._driver.page_source
         #self._driver.save_screenshot("page.png") # print screen
         self._dom=lxml.html.fromstring(html)
@@ -96,8 +102,8 @@ class HtmlGrabber:
 
     def __write(self):
         #path=os.path.join(self._work_dir,"{0}.html".format(uuid.uuid1()))
-        path=os.path.join(self._work_dir,"{0:04}.html".format(self._file_index))
-        self._file_index+=1
+        path=os.path.join(self._work_dir,"{0:04}.html".format(self._global_state._file_index))
+        self._global_state._file_index+=1
         html=self._driver.page_source
         with open(path,"w") as f:
             f.write(html) # ファイル出力
@@ -166,10 +172,13 @@ class HtmlGrabber:
         for child_url in url_list:
             child_url=urljoin(self._driver.current_url,child_url)
             # 再帰処理
-            self.process(config[1:],{
+            # グラバを作成
+            grabber=HtmlGrabber(self._work_dir,self._global_state)
+            grabber.process(config[1:],{
                 "url":child_url,
                 "page_count":1
             })
+            grabber.dispose()
 
     def __to_child_by_select(self,config,state):
 
@@ -227,7 +236,6 @@ class HtmlGrabber:
         sibling_type=config[0]["sibling_type"] if "sibling_type" in config[0] else -1
         writing=config[0]["writing"] if "writing" in config[0] else False
 
-        print("crowling...{0},{1},{2}".format(url,page_count,writing))
         logger.info("crowling...{0},{1},{2}".format(url,page_count,writing))
 
         self.__check_state(config,state)
@@ -259,6 +267,7 @@ def crowl(root,config_file_path):
 
     starting_urls=config[0]["starting_urls"]
     work_dir=os.path.join(root,config[0]["save_dir"])
+    start_index=config[0]["start_index"] if "start_index" in config[0] else 0
 
     if os.path.exists(work_dir):
         shutil.rmtree(work_dir)
@@ -273,7 +282,9 @@ def crowl(root,config_file_path):
     for url in starting_urls:
 
         # グラバを作成
-        grabber=HtmlGrabber(work_dir)
+        gState=GlobalState()
+        gState._file_index=start_index
+        grabber=HtmlGrabber(work_dir,gState)
         grabber.process(config[1:],{
             "url":url,
             "page_count":1
