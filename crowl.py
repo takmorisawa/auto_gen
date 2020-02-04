@@ -279,11 +279,12 @@ def crowl(root,config_file_path):
     with open(path,"w") as f:
         pass
 
+    gState=GlobalState()
+    gState._file_index=start_index
+
     for url in starting_urls:
 
         # グラバを作成
-        gState=GlobalState()
-        gState._file_index=start_index
         grabber=HtmlGrabber(work_dir,gState)
         grabber.process(config[1:],{
             "url":url,
