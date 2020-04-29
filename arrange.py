@@ -1,6 +1,6 @@
 import pandas as pd
 
-def relpace_csv_contents(in_file_path,out_file_path,keywords):
+def relpace_csv_contents(in_file_path,out_file_path,keywords,index_col=0):
     """
     CSVファイル内のデータを部分置換する
 
@@ -10,10 +10,9 @@ def relpace_csv_contents(in_file_path,out_file_path,keywords):
     out_file_path: CSVファイルの出力パス
     keyworkds : 置換内容を辞書型で記述、対象は一文字
     """
-    df_replaced=pd.DataFrame()
-    df=pd.read_csv(in_file_path,dtype=str)
+    df=pd.read_csv(in_file_path,dtype=str,index_col=index_col)
     df=df.fillna("")
-
+    df_replaced=pd.DataFrame(index=df.index)
     trans=str.maketrans(keywords)
 
     for item in df.items():
@@ -28,5 +27,5 @@ def relpace_csv_contents(in_file_path,out_file_path,keywords):
 if __name__=="__main__":
 
     # 全角スペース、ダブルクォーテーション、カンマ
-    keywords={"　":" ","\"":"",",":""}
+    keywords={"　":" ","\"":"",",":"","\n":" "}
     relpace_csv_contents("projects/support_devices/csv/mvno_join.csv","mvno_join_arrange.csv",keywords)
