@@ -48,6 +48,9 @@ class HtmlGrabber:
             2:self.__to_child_by_select,
             3:self.__to_child_by_button
         }
+        self._operation_func_map={
+            1:self.__operation_button,
+        }
 
     def dispose(self):
         self._driver.quit()
@@ -107,6 +110,22 @@ class HtmlGrabber:
         html=self._driver.page_source
         with open(path,"w") as f:
             f.write(html) # ファイル出力
+
+
+    # ボタンをクリック
+    def __operation_button(self,config,state):
+
+        button_xpath=config[0]["operation_xpath_list"][0]
+
+        button=self._driver.find_element_by_xpath(button_xpath)
+        if button.is_displayed():
+            button.click()
+            self.update()
+
+            self.process(config[1:],{
+            "url":self._driver.current_url,
+            "page_count":1
+            })
 
 
     # Javascripを実行して次のページに遷移
@@ -234,6 +253,7 @@ class HtmlGrabber:
         # 設定データ読み込み
         child_type=config[0]["child_type"] if "child_type" in config[0] else -1
         sibling_type=config[0]["sibling_type"] if "sibling_type" in config[0] else -1
+        operation_type=config[0]["operation_type"] if "operation_type" in config[0] else -1
         writing=config[0]["writing"] if "writing" in config[0] else False
 
         logger.info("crowling...{0},{1},{2}".format(url,page_count,writing))
@@ -254,6 +274,9 @@ class HtmlGrabber:
         #次のページに遷移
         if sibling_type in self._sibling_func_map:
             self._sibling_func_map[sibling_type](config,state)
+
+        if operation_type in self._operation_func_map:
+            self._operation_func_map[operation_type](config,state)
 
 
 def crowl(root,config_file_path):
