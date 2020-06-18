@@ -7,6 +7,7 @@ import logging.handlers
 import json
 import lxml.html
 from time import sleep
+import sys
 import os
 import uuid
 import shutil
@@ -318,4 +319,7 @@ def crowl(root,config_file_path):
 
 if __name__ == '__main__':
 
-    crowl("/Users/tkyk/Documents/repo/wifi_spec","service/uq/crowl.config")
+    args=sys.argv
+    root_dir=args[1]
+    config_dir=args[2]
+    crowl(root_dir,config_dir)

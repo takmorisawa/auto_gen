@@ -1,5 +1,6 @@
 import json
 import lxml.html
+import sys
 import os
 import pandas as pd
 import logging.config
@@ -99,5 +100,7 @@ def scrape(root,config_file_path):
 
 if __name__ == '__main__':
 
-    root="/Users/tkyk/Documents/repo/supported_devices"
-    scrape(root,"mvno/iij/scrape.config")
+    args=sys.argv
+    root_dir=args[1]
+    config_dir=args[2]
+    scrape(root_dir,config_dir)
