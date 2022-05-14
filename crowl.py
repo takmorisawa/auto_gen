@@ -12,6 +12,7 @@ import os
 import uuid
 import shutil
 import datetime
+import time
 
 from selenium.webdriver import Chrome, ChromeOptions
 from selenium.webdriver.support.ui import Select
@@ -69,8 +70,10 @@ class HtmlGrabber:
             self.update()
 
         # 「さらに表示」ボタンをクリック
+        count=0
         while morebutton_xpath:
-            print("extend page")
+            count+=1
+            print("extend page: {}".format(count),end="\r")
             # ページを下までスクロール
             self._driver.execute_script('scroll(0,document.body.scrollHeight)')
             # 少し戻ろないとボタンが有効にならない
@@ -116,13 +119,35 @@ class HtmlGrabber:
     # ボタンをクリック
     def __operation_button(self,config,state):
 
+        logger = logging.getLogger()
+
         button_xpath=config[0]["operation_xpath_list"][0]
+        check_xpath=config[0]["operation_xpath_list"][1]
 
-        button=self._driver.find_element_by_xpath(button_xpath)
-        if button.is_displayed():
-            button.click()
+        buttons=self._driver.find_elements_by_xpath(button_xpath)
+        result=True
+        for button in buttons:
+            if button.is_displayed():
+                done=False
+                count=0
+                while done==False and count < 10:
+                    self._driver.execute_script("arguments[0].scrollIntoView();", button)
+                    self._driver.execute_script(
+                        "window.scrollTo(0, window.pageYOffset - " + str(500) + ");")
+                    button.click()
+                    time.sleep(0.1)
+                    done=len(button.find_elements_by_xpath(check_xpath))>0
+                    count+=1
+                if done==True:
+                    print("click: {}/{}".format(buttons.index(button)+1,len(buttons)),end="\r")
+                else:
+                    logger.info("timeout")
+                result*=True
+            else:
+                result=True
+
+        if result:
             self.update()
-
             self.process(config[1:],{
             "url":self._driver.current_url,
             "page_count":1
